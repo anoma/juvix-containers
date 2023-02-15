@@ -1,0 +1,62 @@
+module Data.Set;
+
+open import Data.Ordering;
+open import Data.Tree;
+open import Stdlib.Prelude;
+
+type UnbalancedSet (A : Type) :=
+  unbalancedSet : Ordering A -> BinaryTree A -> UnbalancedSet A;
+
+uset-empty : {A : Type} -> Ordering A -> UnbalancedSet A;
+uset-empty ord := unbalancedSet ord leaf;
+
+uset-member : {A : Type} -> A -> UnbalancedSet A -> Bool;
+uset-member x (unbalancedSet o t) := let
+  go : BinaryTree _ -> Bool;
+  go leaf := false;
+  go (node l y r) :=
+    if (ordering-lt o x y)
+       (go l)
+       (if (ordering-lt o y x)
+           (go r)
+           true)
+  in go t;
+
+uset-insert : {A : Type} -> A -> UnbalancedSet A -> UnbalancedSet A;
+uset-insert {A} x (unbalancedSet o t) := let
+  go : BinaryTree A -> BinaryTree A;
+  go leaf := node leaf x leaf;
+  go n@(node l y r) :=
+    if (ordering-lt o x y)
+        (node (go l) y r)
+        (if (ordering-lt o y x)
+            (node l y (go r))
+            n);
+  in unbalancedSet o (go t);
+
+uset-size : {A : Type} -> UnbalancedSet A -> Nat;
+uset-size (unbalancedSet _ t) := btree-size t;
+
+uset-members : {A : Type} -> UnbalancedSet A -> List A;
+uset-members (unbalancedSet _ t) := btree-members t;
+
+printNatListLn : List Nat → IO;
+printNatListLn nil := printStringLn "nil";
+printNatListLn (x :: xs) := printNat x
+  >> printString " :: "
+  >> printNatListLn xs;
+
+s : UnbalancedSet Nat;
+s := uset-insert 1
+    (uset-insert 3
+    (uset-insert 2
+    (uset-insert 1
+    (uset-empty nat-ordering))));
+
+main : IO;
+main := printNatLn (uset-size s)
+     >> printBoolLn (uset-member 0 s)
+     >> printBoolLn (uset-member 1 s)
+     >> printNatListLn (uset-members s);
+
+end;

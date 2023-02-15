@@ -1,0 +1,23 @@
+module Data.Tree;
+
+open import Stdlib.Prelude;
+
+type BinaryTree (A : Type) :=
+  | leaf : BinaryTree A
+  | node : BinaryTree A -> A -> BinaryTree A -> BinaryTree A;
+
+-- fold a tree in depth first order
+btree-fold : {A B : Type} -> (A -> B -> B -> B) -> B -> BinaryTree A -> B;
+btree-fold {A} {B} f acc := let
+  go : B -> BinaryTree A -> B;
+  go acc leaf := acc;
+  go acc (node l a r) := f a (go acc l) (go acc r);
+  in go acc;
+
+btree-size : {A : Type} -> BinaryTree A -> Nat;
+btree-size := btree-fold (λ { _ l r := 1 + l + r }) 0;
+
+btree-members : {A : Type} -> BinaryTree A -> List A;
+btree-members := btree-fold (λ { e ls rs := e :: (ls ++ rs) }) nil;
+
+end;
