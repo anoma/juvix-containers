@@ -1,9 +1,10 @@
 module Data.Map;
 
 open import Data.Ordering;
-open import Data.Set;
-open import Data.Tree;
+open import Data.Set hiding {main; tests};
+open import Data.Tree hiding {main};
 open import Stdlib.Prelude;
+open import Test.JuvixUnit;
 
 type Binding (A B : Type) :=
   | binding : A -> B -> Binding A B;
@@ -14,40 +15,63 @@ key (binding a _) := a;
 value : {A B : Type} -> Binding A B -> B;
 value (binding _ b) := b;
 
-binding-key-ordering : {A B : Type} -> Ordering A -> Ordering (Binding A B);
-binding-key-ordering o := ordering
-    (λ { b1 b2 := ordering-eq o (key b1) (key b2) })
-    (λ { b1 b2 := ordering-lt o (key b1) (key b2) })
-    (λ { b1 b2 := ordering-leq o (key b1) (key b2) });
+binding-key-ordering :
+  {A B : Type} -> Ordering A -> Ordering (Binding A B);
+binding-key-ordering o :=
+  ordering
+    λ {
+      | b1 b2 := ordering-eq o (key b1) (key b2)
+    }
+    λ {
+      | b1 b2 := ordering-lt o (key b1) (key b2)
+    }
+    λ {
+      | b1 b2 := ordering-leq o (key b1) (key b2)
+    };
 
 type FiniteMap (A B : Type) :=
-  finiteMap : Ordering A -> UnbalancedSet (Binding A B) -> FiniteMap A B;
+  | finiteMap : Ordering A
+      -> UnbalancedSet (Binding A B)
+      -> FiniteMap A B;
 
 finmap-empty : {A B : Type} -> Ordering A -> FiniteMap A B;
-finmap-empty o := finiteMap o (uset-empty (binding-key-ordering o));
+finmap-empty o :=
+  finiteMap o (uset-empty (binding-key-ordering o));
 
-finmap-bind : {A B : Type} -> A -> B -> FiniteMap A B -> FiniteMap A B;
-finmap-bind k v (finiteMap o uset) := finiteMap o (uset-insert (binding k v) uset);
+finmap-bind :
+  {A B : Type} -> A -> B -> FiniteMap A B -> FiniteMap A B;
+finmap-bind k v (finiteMap o uset) :=
+  finiteMap o (uset-insert (binding k v) uset);
 
-finmap-lookup : {A B : Type} -> A -> FiniteMap A B -> Maybe B;
-finmap-lookup {A} {B} k (finiteMap o (unbalancedSet _ t)) := let
-  go : BinaryTree (Binding A B) -> Maybe B;
-  go leaf := nothing;
-  go (node l b r) :=
-     if (ordering-lt o k (key b))
+finmap-lookup :
+  {A B : Type} -> A -> FiniteMap A B -> Maybe B;
+finmap-lookup {A} {B} k (finiteMap o (unbalancedSet _ t)) :=
+  let
+    go : BinaryTree (Binding A B) -> Maybe B;
+    go leaf := nothing;
+    go (node l b r) :=
+      if
+        (ordering-lt o k (key b))
         (go l)
-        (if (ordering-lt o (key b) k)
-            (go r)
-            (just (value b)));
+        (if (ordering-lt o (key b) k) (go r) (just (value b)));
   in go t;
 
 m : FiniteMap Nat String;
-m := finmap-bind 2 "two"
-    (finmap-bind 1 "one"
-    (finmap-empty nat-ordering));
+m :=
+  finmap-bind
+    2
+    "two"
+    (finmap-bind 1 "one" (finmap-empty nat-ordering));
+
+tests : List Test;
+tests :=
+  testCase
+      "finmap-lookup missing key"
+      (assertNothing (const "found a key expected to be missing") (finmap-lookup 10 m))
+    :: testCase
+      "finmap-lookup available key"
+      (assertJust "could not find expected key" (finmap-lookup 2 m))
+    :: nil;
 
 main : IO;
-main := printStringLn (fromMaybe "not found" (finmap-lookup 2 m))
-      >> printStringLn (fromMaybe "not found" (finmap-lookup 10 m));
-
-end;
+main := runTestSuite (testSuite "Map" tests);
