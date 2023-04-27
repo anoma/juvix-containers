@@ -40,6 +40,20 @@ pair-ordering (ord cmp-a) (ord cmp-b) :=
           | EQ := cmp-b b1 b2
     };
 
+list-ordering : {A : Type} -> Ord A -> Ord (List A);
+list-ordering {A} (ord cmp-a) :=
+  let
+    go : List A -> List A -> Ordering;
+    go nil nil := EQ;
+    go nil _ := LT;
+    go _ nil := GT;
+    go (x :: xs) (y :: ys) :=
+      case cmp-a x y
+        | LT := LT
+        | GT := GT
+        | EQ := go xs ys;
+  in ord go;
+
 terminating
 quickSort : {A : Type} → Ord A → List A → List A;
 quickSort _ nil := nil;
