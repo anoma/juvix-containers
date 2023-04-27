@@ -4,6 +4,7 @@ open import Stdlib.Prelude;
 open import Stdlib.Data.Ord;
 
 import Stdlib.Data.Nat.Ord as Nat;
+import Stdlib.Data.Int.Ord as Int;
 
 --- A class for totally ordered types
 type Ord (A : Type) :=
@@ -27,6 +28,9 @@ ordering-gt (ord f) a1 a2 := isGT (f a1 a2);
 
 nat-ordering : Ord Nat;
 nat-ordering := ord Nat.compare;
+
+int-ordering : Ord Int;
+int-ordering := ord Int.compare;
 
 pair-ordering :
   {A B : Type} -> Ord A -> Ord B -> Ord (A × B);
