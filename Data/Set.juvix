@@ -53,20 +53,33 @@ length (unbalancedSet _ t) := Tree.length t;
 to-list : {A : Type} -> UnbalancedSet A -> List A;
 to-list (unbalancedSet _ t) := Tree.to-list t;
 
+set-ordering : {A : Type} -> Ord A -> Ord (Set A);
+set-ordering {A} o :=
+  let
+    from-ord-list : Ord (List A) -> Ord (Set A);
+    from-ord-list (ord cmp) :=
+      ord
+        λ {
+          | s1 s2 := cmp (to-list s1) (to-list s2)
+        };
+  in from-ord-list (list-ordering o);
+
 printNatListLn : List Nat → IO;
 printNatListLn nil := printStringLn "nil";
 printNatListLn (x :: xs) :=
   printNat x >> printString " :: " >> printNatListLn xs;
 
-s : UnbalancedSet Nat;
-s :=
-  insert
-    1
-    (insert 3 (insert 2 (insert 1 (empty nat-ordering))));
-
 tests : List Test;
 tests :=
-  testCase
+  let
+    s : UnbalancedSet Nat;
+    s :=
+      insert
+        1
+        (insert 3 (insert 2 (insert 1 (empty nat-ordering))));
+    setInSet : Set (Set Nat);
+    setInSet := insert s (empty (set-ordering nat-ordering));
+  in testCase
       "uset-size computes the expected size"
       (assertEqual nat-eq "unexpected size" (length s) 3)
     :: testCase
@@ -82,6 +95,9 @@ tests :=
     :: testCase
       "uset-member? computes false for unexpected member"
       (assertFalse "unexpected member is present" (member? 0 s))
+    :: testCase
+      "setInSet has length 1"
+      (assertEqual nat-eq "unexpected size" (length setInSet) 1)
     :: nil;
 
 main : IO;
