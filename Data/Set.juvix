@@ -1,13 +1,15 @@
 module Data.Set;
 
 open import Data.Ord;
-open import Data.Tree;
 open import Stdlib.Prelude hiding {length};
 open import Data.Eq;
 open import Test.JuvixUnit;
 
 import Stdlib.Data.Nat.Ord as Nat;
 import Stdlib.Data.Ord as Ord;
+
+import Data.Tree as Tree;
+open Tree using {BinaryTree;binaryTree;leaf;node};
 
 type UnbalancedSet (A : Type) :=
   | unbalancedSet : Ord A
@@ -42,10 +44,10 @@ insert {A} x (unbalancedSet o@(ord cmp) t) :=
   in unbalancedSet o (go t);
 
 length : {A : Type} -> UnbalancedSet A -> Nat;
-length (unbalancedSet _ t) := btree-size t;
+length (unbalancedSet _ t) := Tree.length t;
 
 to-list : {A : Type} -> UnbalancedSet A -> List A;
-to-list (unbalancedSet _ t) := btree-members t;
+to-list (unbalancedSet _ t) := Tree.to-list t;
 
 printNatListLn : List Nat → IO;
 printNatListLn nil := printStringLn "nil";
