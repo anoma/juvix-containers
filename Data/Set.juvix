@@ -2,7 +2,7 @@ module Data.Set;
 
 open import Data.Ord;
 open import Data.Tree;
-open import Stdlib.Prelude;
+open import Stdlib.Prelude hiding {length};
 open import Data.Eq;
 open import Test.JuvixUnit;
 
@@ -17,8 +17,8 @@ type UnbalancedSet (A : Type) :=
 empty : {A : Type} -> Ord A -> UnbalancedSet A;
 empty o := unbalancedSet o leaf;
 
-uset-member? : {A : Type} -> A -> UnbalancedSet A -> Bool;
-uset-member? {A} x (unbalancedSet o t) :=
+member? : {A : Type} -> A -> UnbalancedSet A -> Bool;
+member? {A} x (unbalancedSet o t) :=
   let
     go : BinaryTree A -> Bool;
     go leaf := false;
@@ -29,8 +29,8 @@ uset-member? {A} x (unbalancedSet o t) :=
         (if (ordering-lt o y x) (go r) true);
   in go t;
 
-uset-insert : {A : Type} -> A -> UnbalancedSet A -> UnbalancedSet A;
-uset-insert {A} x (unbalancedSet o@(ord cmp) t) :=
+insert : {A : Type} -> A -> UnbalancedSet A -> UnbalancedSet A;
+insert {A} x (unbalancedSet o@(ord cmp) t) :=
   let
     go : BinaryTree A -> BinaryTree A;
     go leaf := node leaf x leaf;
@@ -41,12 +41,11 @@ uset-insert {A} x (unbalancedSet o@(ord cmp) t) :=
       | Ord.GT := node l y (go r)
   in unbalancedSet o (go t);
 
-uset-size : {A : Type} -> UnbalancedSet A -> Nat;
-uset-size (unbalancedSet _ t) := btree-size t;
+length : {A : Type} -> UnbalancedSet A -> Nat;
+length (unbalancedSet _ t) := btree-size t;
 
--- TODO: Change to to-list
-uset-members : {A : Type} -> UnbalancedSet A -> List A;
-uset-members (unbalancedSet _ t) := btree-members t;
+to-list : {A : Type} -> UnbalancedSet A -> List A;
+to-list (unbalancedSet _ t) := btree-members t;
 
 printNatListLn : List Nat → IO;
 printNatListLn nil := printStringLn "nil";
@@ -55,30 +54,30 @@ printNatListLn (x :: xs) :=
 
 s : UnbalancedSet Nat;
 s :=
-  uset-insert
+  insert
     1
-    (uset-insert
+    (insert
       3
-      (uset-insert 2 (uset-insert 1 (empty nat-ordering))));
+      (insert 2 (insert 1 (empty nat-ordering))));
 
 tests : List Test;
 tests :=
   testCase
       "uset-size computes the expected size"
-      (assertEqual nat-eq "unexpected size" (uset-size s) 3)
+      (assertEqual nat-eq "unexpected size" (length s) 3)
     :: testCase
       "uset-members computes the expected members"
       (assertEqual
         (list-eq nat-eq)
         "unexpected memebrs"
-        (quickSort nat-ordering (uset-members s))
+        (quickSort nat-ordering (to-list s))
         (1 :: 2 :: 3 :: nil))
     :: testCase
       "uset-member? computes true for expected member"
-      (assertTrue "expected member is not present" (uset-member? 1 s))
+      (assertTrue "expected member is not present" (member? 1 s))
     :: testCase
       "uset-member? computes false for unexpected member"
-      (assertFalse "unexpected member is present" (uset-member? 0 s))
+      (assertFalse "unexpected member is present" (member? 0 s))
     :: nil;
 
 main : IO;

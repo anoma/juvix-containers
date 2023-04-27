@@ -102,10 +102,10 @@ from-list-with o f :=
     (finmap-empty o);
 
 to-list : {A B : Type} -> FiniteMap A B -> List (A × B);
-to-list (finiteMap _ s) := map to-pair (Set.uset-members s);
+to-list (finiteMap _ s) := map to-pair (Set.to-list s);
 
 length : {A B : Type} -> FiniteMap A B -> Nat;
-length (finiteMap _ uset) := Set.uset-size uset;
+length (finiteMap _ uset) := Set.length uset;
 
 tests : List Test;
 tests :=
