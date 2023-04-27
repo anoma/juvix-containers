@@ -38,18 +38,17 @@ type FiniteMap (A B : Type) :=
       -> Set.UnbalancedSet (Binding A B)
       -> FiniteMap A B;
 
-finmap-empty : {A B : Type} -> Ord A -> FiniteMap A B;
-finmap-empty o :=
-  finiteMap o (Set.empty (binding-key-ordering o));
+empty : {A B : Type} -> Ord A -> FiniteMap A B;
+empty o := finiteMap o (Set.empty (binding-key-ordering o));
 
-finmap-bind-with :
+bind-with :
   {A B : Type}
     -> (B -> B -> B)
     -> A
     -> B
     -> FiniteMap A B
     -> FiniteMap A B;
-finmap-bind-with {A} {B} f k v (finiteMap o@(ord cmp) (Set.unbalancedSet _ t)) :=
+bind-with {A} {B} f k v (finiteMap o@(ord cmp) (Set.unbalancedSet _ t)) :=
   let
     go :
         Tree.BinaryTree (Binding A B)
@@ -67,17 +66,16 @@ finmap-bind-with {A} {B} f k v (finiteMap o@(ord cmp) (Set.unbalancedSet _ t)) :
     o
     (Set.unbalancedSet (binding-key-ordering o) (go t));
 
-finmap-bind :
+bind :
   {A B : Type} -> A -> B -> FiniteMap A B -> FiniteMap A B;
-finmap-bind :=
-  finmap-bind-with
+bind :=
+  bind-with
     λ {
       | old new := new
     };
 
-finmap-lookup :
-  {A B : Type} -> A -> FiniteMap A B -> Maybe B;
-finmap-lookup {A} {B} k (finiteMap (ord cmp) (Set.unbalancedSet _ t)) :=
+lookup : {A B : Type} -> A -> FiniteMap A B -> Maybe B;
+lookup {A} {B} k (finiteMap (ord cmp) (Set.unbalancedSet _ t)) :=
   let
     go : Tree.BinaryTree (Binding A B) -> Maybe B;
     go Tree.leaf := nothing;
@@ -97,9 +95,9 @@ from-list-with :
 from-list-with o f :=
   foldl
     λ {
-      | m (k, v) := finmap-bind-with f k v m
+      | m (k, v) := bind-with f k v m
     }
-    (finmap-empty o);
+    (empty o);
 
 to-list : {A B : Type} -> FiniteMap A B -> List (A × B);
 to-list (finiteMap _ s) := map to-pair (Set.to-list s);
@@ -112,16 +110,9 @@ tests :=
   let
     m : FiniteMap Nat String;
     m :=
-      finmap-bind
-        2
-        "two"
-        (finmap-bind 1 "one" (finmap-empty Ordering.nat-ordering));
+      bind 2 "two" (bind 1 "one" (empty Ordering.nat-ordering));
     m2 : FiniteMap Nat Nat;
-    m2 :=
-      finmap-bind
-        3
-        4
-        (finmap-bind 1 2 (finmap-empty Ordering.nat-ordering));
+    m2 := bind 3 4 (bind 1 2 (empty Ordering.nat-ordering));
     assertEqListPair :
         List (Nat × Nat) -> List (Nat × Nat) -> Assertion;
     assertEqListPair actual expected :=
@@ -138,12 +129,10 @@ tests :=
       "finmap-lookup missing key"
       (assertNothing
         (const "found a key expected to be missing")
-        (finmap-lookup 10 m))
+        (lookup 10 m))
     :: testCase
       "finmap-lookup available key"
-      (assertJust
-        "could not find expected key"
-        (finmap-lookup 2 m))
+      (assertJust "could not find expected key" (lookup 2 m))
     :: testCase
       "length computes the number of keys in the map"
       (assertEqual Eq.nat-eq "expected length 2" (length m) 2)
@@ -153,7 +142,7 @@ tests :=
     :: testCase
       "finmap-bind-with replaces duplicates using merge function"
       (assertEqListPair
-        (to-list (finmap-bind-with (+) 1 3 m2))
+        (to-list (bind-with (+) 1 3 m2))
         ((1, 5) :: (3, 4) :: nil))
     :: testCase
       "from-list-with de-duplicates using merge function"
