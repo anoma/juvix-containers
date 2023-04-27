@@ -1,4 +1,4 @@
-module Data.Ordering;
+module Data.Ord;
 
 open import Stdlib.Prelude;
 open import Stdlib.Data.Ord;

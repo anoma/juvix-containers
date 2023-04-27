@@ -1,6 +1,6 @@
 module Data.Set;
 
-open import Data.Ordering;
+open import Data.Ord;
 open import Data.Tree;
 open import Stdlib.Prelude;
 open import Data.Eq;

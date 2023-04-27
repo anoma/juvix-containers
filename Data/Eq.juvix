@@ -1,7 +1,7 @@
 module Data.Eq;
 
 open import Stdlib.Prelude;
-open import Data.Ordering;
+open import Data.Ord;
 
 import Stdlib.Data.Nat.Ord;
 import Stdlib.Data.String.Ord;

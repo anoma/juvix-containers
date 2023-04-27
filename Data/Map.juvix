@@ -10,7 +10,7 @@ import Data.Eq as Eq;
 
 open import Test.JuvixUnit;
 
-import Data.Ordering as Ordering;
+import Data.Ord as Ordering;
 open Ordering using {Ord;ord};
 
 type Binding (A B : Type) :=
