@@ -14,8 +14,8 @@ type UnbalancedSet (A : Type) :=
       -> BinaryTree A
       -> UnbalancedSet A;
 
-uset-empty : {A : Type} -> Ord A -> UnbalancedSet A;
-uset-empty o := unbalancedSet o leaf;
+empty : {A : Type} -> Ord A -> UnbalancedSet A;
+empty o := unbalancedSet o leaf;
 
 uset-member? : {A : Type} -> A -> UnbalancedSet A -> Bool;
 uset-member? {A} x (unbalancedSet o t) :=
@@ -59,7 +59,7 @@ s :=
     1
     (uset-insert
       3
-      (uset-insert 2 (uset-insert 1 (uset-empty nat-ordering))));
+      (uset-insert 2 (uset-insert 1 (empty nat-ordering))));
 
 tests : List Test;
 tests :=

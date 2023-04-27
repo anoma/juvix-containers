@@ -40,7 +40,7 @@ type FiniteMap (A B : Type) :=
 
 finmap-empty : {A B : Type} -> Ord A -> FiniteMap A B;
 finmap-empty o :=
-  finiteMap o (Set.uset-empty (binding-key-ordering o));
+  finiteMap o (Set.empty (binding-key-ordering o));
 
 finmap-bind-with :
   {A B : Type}
