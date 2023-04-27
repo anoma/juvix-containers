@@ -38,6 +38,9 @@ type FiniteMap (A B : Type) :=
       -> Set.UnbalancedSet (Binding A B)
       -> FiniteMap A B;
 
+Map : Type -> Type -> Type;
+Map A B := FiniteMap A B;
+
 empty : {A B : Type} -> Ord A -> FiniteMap A B;
 empty o := finiteMap o (Set.empty (binding-key-ordering o));
 

@@ -16,6 +16,9 @@ type UnbalancedSet (A : Type) :=
       -> BinaryTree A
       -> UnbalancedSet A;
 
+Set : Type -> Type;
+Set A := UnbalancedSet A;
+
 empty : {A : Type} -> Ord A -> UnbalancedSet A;
 empty o := unbalancedSet o leaf;
 
