@@ -1,38 +1,53 @@
 module Data.Ordering;
 
 open import Stdlib.Prelude;
-open import Stdlib.Data.Nat.Ord;
+open import Stdlib.Data.Ord;
 
--- A totally ordered type and comparison functions (eq, lt, leq).
-type Ordering (A : Type) :=
-  | ordering : (A -> A -> Bool)
-      -> (A -> A -> Bool)
-      -> (A -> A -> Bool)
-      -> Ordering A;
+import Stdlib.Data.Nat.Ord as Nat;
 
-ordering-eq : {A : Type} -> Ordering A -> A -> A -> Bool;
-ordering-eq (ordering eq _ _) := eq;
+--- A class for totally ordered types
+type Ord (A : Type) :=
+  | ord : (A -> A -> Ordering) -> Ord A;
 
-ordering-lt : {A : Type} -> Ordering A -> A -> A -> Bool;
-ordering-lt (ordering _ lt _) := lt;
+ordering-eq : {A : Type} -> Ord A -> A -> A -> Bool;
+ordering-eq (ord f) a1 a2 := isEQ (f a1 a2);
 
-ordering-leq : {A : Type} -> Ordering A -> A -> A -> Bool;
-ordering-leq (ordering _ _ leq) := leq;
+ordering-lt : {A : Type} -> Ord A -> A -> A -> Bool;
+ordering-lt (ord f) a1 a2 := isLT (f a1 a2);
 
-ordering-gt : {A : Type} -> Ordering A -> A -> A -> Bool;
-ordering-gt ord a1 a2 := not (ordering-leq ord a1 a2);
+ordering-leq : {A : Type} -> Ord A -> A -> A -> Bool;
+ordering-leq (ord f) a1 a2 :=
+  let
+    cmp : Ordering;
+    cmp := f a1 a2;
+  in isLT cmp || isEQ cmp;
 
-nat-ordering : Ordering Nat;
-nat-ordering := ordering (==) (<) (<=);
+ordering-gt : {A : Type} -> Ord A -> A -> A -> Bool;
+ordering-gt (ord f) a1 a2 := isGT (f a1 a2);
+
+nat-ordering : Ord Nat;
+nat-ordering := ord Nat.compare;
+
+pair-ordering :
+  {A B : Type} -> Ord A -> Ord B -> Ord (A × B);
+pair-ordering (ord cmp-a) (ord cmp-b) :=
+  ord
+    λ {
+      | (a1, b1) (a2, b2) :=
+        case cmp-a a1 a2
+          | LT := LT
+          | GT := GT
+          | EQ := cmp-b b1 b2
+    };
 
 terminating
-quickSort : {A : Type} → Ordering A → List A → List A;
+quickSort : {A : Type} → Ord A → List A → List A;
 quickSort _ nil := nil;
 quickSort _ (x :: nil) := x :: nil;
-quickSort {A} ord (x :: xs) :=
+quickSort {A} o (x :: xs) :=
   let
     qsHelper : A → List A × List A → List A;
     qsHelper a (l, r) := l ++ (a :: nil) ++ r;
     isGT : A -> Bool;
-    isGT := ordering-gt ord x;
-  in qsHelper x (both (quickSort ord) (partition isGT xs));
+    isGT := ordering-gt o x;
+  in qsHelper x (both (quickSort o) (partition isGT xs));

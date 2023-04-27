@@ -27,14 +27,21 @@ all := foldl and true;
 eq-== : {A : Type} -> Eq A -> A -> A -> Bool;
 eq-== (eq op) := op;
 
-eq-ordering : {A : Type} -> Ordering A -> Eq A;
-eq-ordering ord := eq (ordering-eq ord);
+eq-ordering : {A : Type} -> Ord A -> Eq A;
+eq-ordering o := eq (ordering-eq o);
 
 nat-eq : Eq Nat;
 nat-eq := eq-ordering nat-ordering;
 
 string-eq : Eq String;
 string-eq := eq (Stdlib.Data.String.Ord.==);
+
+pair-eq : {A B : Type} -> Eq A -> Eq B -> Eq (A × B);
+pair-eq (eq eq-a) (eq eq-b) :=
+  eq
+    λ {
+      | (a1, b1) (a2, b2) := eq-a a1 a2 && eq-b b1 b2
+    };
 
 list-eq : {A : Type} -> Eq A -> Eq (List A);
 list-eq {A} (eq a-eq) :=
