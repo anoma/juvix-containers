@@ -1,23 +1,24 @@
 module Data.Showing;
-  open import Stdlib.Prelude;
 
-  type Showing (A : Type) :=
-    | showing : (A -> String) -> Showing A;
+open import Stdlib.Prelude;
 
-  natShowing : Showing Nat;
-  natShowing := showing natToString;
+type Showing (A : Type) :=
+  | showing : (A -> String) -> Showing A;
 
-  stringShowing : Showing String;
-  stringShowing := let
+natShowing : Showing Nat;
+natShowing := showing natToString;
+
+stringShowing : Showing String;
+stringShowing :=
+  let
     go : String -> String;
     go s := "\"" ++str s ++str "\"";
-    in showing go;
+  in showing go;
 
-  listShowing : {A : Type} -> Showing A -> Showing (List A);
-  listShowing {A} (showing show) :=
-    let
-      go : List A -> String;
-      go nil := "nil";
-      go (x :: xs) := show x ++str " :: " ++str go xs;
-     in showing go;
-end;
+listShowing : {A : Type} -> Showing A -> Showing (List A);
+listShowing {A} (showing show) :=
+  let
+    go : List A -> String;
+    go nil := "nil";
+    go (x :: xs) := show x ++str " :: " ++str go xs;
+  in showing go;

@@ -31,16 +31,17 @@ member? {A} x (unbalancedSet o t) :=
         (if (ordering-lt o y x) (go r) true);
   in go t;
 
-insert : {A : Type} -> A -> UnbalancedSet A -> UnbalancedSet A;
+insert :
+  {A : Type} -> A -> UnbalancedSet A -> UnbalancedSet A;
 insert {A} x (unbalancedSet o@(ord cmp) t) :=
   let
     go : BinaryTree A -> BinaryTree A;
     go leaf := node leaf x leaf;
     go n@(node l y r) :=
-      case (cmp x y)
-      | Ord.LT := node (go l) y r
-      | Ord.EQ := n
-      | Ord.GT := node l y (go r)
+      case cmp x y
+        | Ord.LT := node (go l) y r
+        | Ord.EQ := n
+        | Ord.GT := node l y (go r);
   in unbalancedSet o (go t);
 
 length : {A : Type} -> UnbalancedSet A -> Nat;
@@ -58,9 +59,7 @@ s : UnbalancedSet Nat;
 s :=
   insert
     1
-    (insert
-      3
-      (insert 2 (insert 1 (empty nat-ordering))));
+    (insert 3 (insert 2 (insert 1 (empty nat-ordering))));
 
 tests : List Test;
 tests :=

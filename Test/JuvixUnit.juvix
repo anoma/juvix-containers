@@ -56,5 +56,6 @@ assertNothing :
   {A : Type} -> (A -> String) -> Maybe A -> Assertion;
 assertNothing mkMsg := maybe pass (fail ∘ mkMsg);
 
-assertEqual : {A : Type} -> Eq A -> String -> A -> A -> Assertion;
+assertEqual :
+  {A : Type} -> Eq A -> String -> A -> A -> Assertion;
 assertEqual (eq ==) msg a1 a2 := failUnless msg (== a1 a2);
