@@ -1,8 +1,11 @@
 module Data.Set;
 
-open import Data.Ord;
+import Data.Ord as Ord;
+open Ord using {Ord;ord};
 open import Stdlib.Prelude hiding {length};
-open import Data.Eq;
+
+import Data.Eq as Eq;
+open Eq using {Eq};
 open import Test.JuvixUnit;
 
 import Stdlib.Data.Nat.Ord as Nat;
@@ -28,10 +31,7 @@ member? {A} x (unbalancedSet o t) :=
     go : BinaryTree A -> Bool;
     go leaf := false;
     go (node l y r) :=
-      if
-        (ordering-lt o x y)
-        (go l)
-        (if (ordering-lt o y x) (go r) true);
+      if (Ord.lt o x y) (go l) (if (Ord.lt o y x) (go r) true);
   in go t;
 
 insert :
@@ -62,7 +62,7 @@ set-ordering {A} o :=
         λ {
           | s1 s2 := cmp (to-list s1) (to-list s2)
         };
-  in from-ord-list (list-ordering o);
+  in from-ord-list (Ord.list o);
 
 printNatListLn : List Nat → IO;
 printNatListLn nil := printStringLn "nil";
@@ -74,20 +74,29 @@ tests :=
   let
     s : UnbalancedSet Nat;
     s :=
-      insert
-        1
-        (insert 3 (insert 2 (insert 1 (empty nat-ordering))));
+      insert 1 (insert 3 (insert 2 (insert 1 (empty Ord.nat))));
     setInSet : Set (Set Nat);
-    setInSet := insert s (empty (set-ordering nat-ordering));
+    setInSet := insert s (empty (set-ordering Ord.nat));
+    terminating
+    quickSort : {A : Type} → Ord A → List A → List A;
+    quickSort _ nil := nil;
+    quickSort _ (x :: nil) := x :: nil;
+    quickSort {A} o (x :: xs) :=
+      let
+        qsHelper : A → List A × List A → List A;
+        qsHelper a (l, r) := l ++ (a :: nil) ++ r;
+        isGT : A -> Bool;
+        isGT := Ord.gt o x;
+      in qsHelper x (both (quickSort o) (partition isGT xs));
   in testCase
       "uset-size computes the expected size"
-      (assertEqual nat-eq "unexpected size" (length s) 3)
+      (assertEqual Eq.nat "unexpected size" (length s) 3)
     :: testCase
       "uset-members computes the expected members"
       (assertEqual
-        (list-eq nat-eq)
+        (Eq.list Eq.nat)
         "unexpected memebrs"
-        (quickSort nat-ordering (to-list s))
+        (quickSort Ord.nat (to-list s))
         (1 :: 2 :: 3 :: nil))
     :: testCase
       "uset-member? computes true for expected member"
@@ -97,7 +106,7 @@ tests :=
       (assertFalse "unexpected member is present" (member? 0 s))
     :: testCase
       "setInSet has length 1"
-      (assertEqual nat-eq "unexpected size" (length setInSet) 1)
+      (assertEqual Eq.nat "unexpected size" (length setInSet) 1)
     :: nil;
 
 main : IO;

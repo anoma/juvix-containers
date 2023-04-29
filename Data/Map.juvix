@@ -2,6 +2,9 @@ module Data.Map;
 
 open import Stdlib.Prelude hiding {length};
 
+import Data.Ord as Ord;
+open Ord using {Ord;ord};
+
 import Stdlib.Data.Nat.Ord as Nat;
 import Data.Set as Set;
 import Data.Tree as Tree;
@@ -9,9 +12,6 @@ import Stdlib.Data.Ord as Ord;
 import Data.Eq as Eq;
 
 open import Test.JuvixUnit;
-
-import Data.Ord as Ordering;
-open Ordering using {Ord;ord};
 
 type Binding (A B : Type) :=
   | binding : A -> B -> Binding A B;
@@ -113,19 +113,30 @@ tests :=
   let
     m : FiniteMap Nat String;
     m :=
-      bind 2 "two" (bind 1 "one" (empty Ordering.nat-ordering));
+      bind 2 "two" (bind 1 "one" (empty Ord.nat));
     m2 : FiniteMap Nat Nat;
-    m2 := bind 3 4 (bind 1 2 (empty Ordering.nat-ordering));
+    m2 := bind 3 4 (bind 1 2 (empty Ord.nat));
+    terminating
+    quickSort : {A : Type} → Ord A → List A → List A;
+    quickSort _ nil := nil;
+    quickSort _ (x :: nil) := x :: nil;
+    quickSort {A} o (x :: xs) :=
+      let
+        qsHelper : A → List A × List A → List A;
+        qsHelper a (l, r) := l ++ (a :: nil) ++ r;
+        isGT : A -> Bool;
+        isGT := Ord.gt o x;
+      in qsHelper x (both (quickSort o) (partition isGT xs));
     assertEqListPair :
         List (Nat × Nat) -> List (Nat × Nat) -> Assertion;
     assertEqListPair actual expected :=
       assertEqual
-        (Eq.list-eq (Eq.pair-eq Eq.nat-eq Eq.nat-eq))
+        (Eq.list (Eq.pair Eq.nat Eq.nat))
         "lists are not equal"
-        (Ordering.quickSort
-          (Ordering.pair-ordering
-            Ordering.nat-ordering
-            Ordering.nat-ordering)
+        (quickSort
+          (Ord.pair
+            Ord.nat
+            Ord.nat)
           actual)
         expected;
   in testCase
@@ -138,7 +149,7 @@ tests :=
       (assertJust "could not find expected key" (lookup 2 m))
     :: testCase
       "length computes the number of keys in the map"
-      (assertEqual Eq.nat-eq "expected length 2" (length m) 2)
+      (assertEqual Eq.nat "expected length 2" (length m) 2)
     :: testCase
       "to-list computes the expected members"
       (assertEqListPair (to-list m2) ((1, 2) :: (3, 4) :: nil))
@@ -152,7 +163,7 @@ tests :=
       (assertEqListPair
         (to-list
           (from-list-with
-            Ordering.nat-ordering
+            Ord.nat
             (+)
             ((1, 1) :: (1, 2) :: nil)))
         ((1, 3) :: nil))
