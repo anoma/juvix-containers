@@ -7,7 +7,7 @@ deps/traits:
 
 deps/test:
 	@mkdir -p deps/
-	@git clone --branch main --depth 1 https://github.com/paulcadman/test.git deps/test
+	@git clone --branch v0.1.0 --depth 1 https://github.com/paulcadman/test.git deps/test
 	$(MAKE) -C deps/test deps
 
 deps: deps/traits deps/test
