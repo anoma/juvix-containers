@@ -1,38 +1,44 @@
+--- N-Ary trees with pretty printing.
 module Data.Tree;
 
-open import Stdlib.Prelude hiding {length};
+open import Stdlib.Prelude;
+open import Data.Showing;
+open import Data.Tmp;
 
-type BinaryTree (A : Type) :=
-  | leaf : BinaryTree A
-  | node : BinaryTree A -> A -> BinaryTree A -> BinaryTree A;
+--- A ;List; of trees.
+Forest : Type -> Type;
 
--- fold a tree in depth first order
-fold :
-  {A B : Type}
-    -> (A -> B -> B -> B)
-    -> B
-    -> BinaryTree A
-    -> B;
-fold {A} {B} f acc :=
+--- N-Ary tree.
+positive
+type Tree (A : Type) :=
+  | node : A -> Forest A -> Tree A;
+
+Forest A := List (Tree A);
+
+shift :
+  Nat -> String -> String -> List String -> List String;
+shift n first other :=
+  zipWith (++str) (first :: replicate n other);
+
+draw : {A : Type} -> Showing A -> Tree A -> List String;
+
+drawForest :
+  {A : Type} -> Showing A -> Forest A -> List String;
+
+draw {A} s@(showing show) (node v cs) :=
   let
-    go : B -> BinaryTree A -> B;
-    go acc leaf := acc;
-    go acc (node l a r) := f a (go acc l) (go acc r);
-  in go acc;
+    go : Tree A -> List String;
+    go := draw s;
+  in show v :: drawForest s cs;
 
-length : {A : Type} -> BinaryTree A -> Nat;
-length :=
-  fold
-    λ {
-      | _ l r := 1 + l + r
-    }
-    0;
+drawForest s nil := nil;
+drawForest s (h :: nil) :=
+  "|" :: shift 300 "`- " "   " (draw s h);
+drawForest s (h :: hs) :=
+  "|" :: shift 300 "+- " "|  " (draw s h) ++ drawForest s hs;
 
-to-list : {A : Type} -> BinaryTree A -> List A;
-to-list :=
-  fold
-    λ {
-      | e ls rs := e :: ls ++ rs
-    }
-    nil;
+treeToString : {A : Type} -> Showing A -> Tree A -> String;
+treeToString s := unlines ∘ draw s;
 
+forestToString : {A : Type} -> Showing A -> Forest A -> String;
+forestToString s := unlines ∘ drawForest s;

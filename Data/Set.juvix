@@ -11,7 +11,7 @@ open import Test.JuvixUnit;
 import Stdlib.Data.Nat.Ord as Nat;
 import Stdlib.Data.Ord as Ord;
 
-import Data.Tree as Tree;
+import Data.BinaryTree as Tree;
 open Tree using {BinaryTree;binaryTree;leaf;node};
 
 type UnbalancedSet (A : Type) :=

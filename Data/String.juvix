@@ -5,4 +5,3 @@ open import Stdlib.Data.String.Ord;
 
 null? : String -> Bool;
 null? s := s == "";
-

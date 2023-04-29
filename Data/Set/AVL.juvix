@@ -14,8 +14,13 @@ import Stdlib.Data.Int as Int;
 import Stdlib.Data.Int.Ord as Int;
 
 open import Data.Showing;
+open import Data.Tmp;
+open import Stdlib.Data.Ord;
 
 open import Data.Ord;
+
+import Data.Tree as Tree;
+open Tree using {Tree;Forest};
 
 import Stdlib.Data.Nat.Ord as Nat;
 open Nat;
@@ -35,34 +40,42 @@ height empty := 0;
 height (node _ h _ _) := h;
 
 type BalanceFactor :=
-  | Neg : BalanceFactor
-  | Zero : BalanceFactor
-  | Pos : BalanceFactor;
+  | --- Left children is higher.
+    Neg : BalanceFactor
+  | --- Equal heights of children.
+    Zero : BalanceFactor
+  | --- Right children is higher.
+    Pos : BalanceFactor;
+
+diffFactor : {A : Type} -> AVLTree A -> Int;
+diffFactor empty := 0;
+diffFactor (node _ _ left right) :=
+  Int.intSubNat (height right) (height left);
 
 --- 𝒪(1) Computes the balance factor, i.e., the height of the right subtree
 --- minus the height of the left subtree.
 balanceFactor : {A : Type} -> AVLTree A -> BalanceFactor;
-balanceFactor empty := Zero;
-balanceFactor (node _ _ left right) :=
+balanceFactor n :=
   let
-    diff : Int := Int.intSubNat (height right) (height left);
+    diff : Int := diffFactor n;
   in if (0 Int.< diff) Pos (if (diff Int.< 0) Neg Zero);
 
 --- Helper function for creating a node.
 mknode :
   {A : Type} -> A -> AVLTree A -> AVLTree A -> AVLTree A;
-mknode val l r := node val (max (height l) (height r)) l r;
+mknode val l r :=
+  node val (1 + max (height l) (height r)) l r;
 
---- left-left rotation.
+--- Left rotation.
 rotateLeft : {A : Type} -> AVLTree A -> AVLTree A;
-rotateLeft (node x h l (node y rh rl rr)) :=
-  mknode y (mknode x l rl) rr;
+rotateLeft (node x _ a (node z _ b c)) :=
+  mknode z (mknode x a b) c;
 rotateLeft n := n;
 
---- right-right rotation.
+--- Right rotation.
 rotateRight : {A : Type} -> AVLTree A -> AVLTree A;
-rotateRight (node x h (node y lh ll lr) r) :=
-  mknode y ll (mknode x lr r);
+rotateRight (node z _ (node y _ x t3) t4) :=
+  mknode y x (mknode z t3 t4);
 rotateRight n := n;
 
 leftChild : {A : Type} -> AVLTree A -> AVLTree A;
@@ -80,15 +93,13 @@ balance n@(node x h l r) :=
     factor : BalanceFactor := balanceFactor n;
   in case factor
     | Pos :=
-      if
-        (height (rightChild r) > height (leftChild r))
-        (rotateLeft (mknode x l (rotateRight r)))
-        (rotateLeft (mknode x l r))
+      (case balanceFactor r
+        | Neg := rotateLeft (mknode x l (rotateRight r))
+        | _ := rotateLeft n)
     | Neg :=
-      if
-        (height (leftChild l) > height (rightChild l))
-        (rotateRight (mknode x (rotateLeft l) r))
-        (rotateRight (mknode x l r))
+      (case balanceFactor l
+        | Pos := rotateRight (mknode x (rotateLeft l) r)
+        | _ := rotateRight n)
     | Zero := n;
 
 printNatListLn : List Nat → IO;
@@ -116,10 +127,8 @@ insert {a} (ord cmp) x :=
 
 isBalanced : {a : Type} -> AVLTree a -> Bool;
 isBalanced empty := true;
-isBalanced (node _ _ l r) :=
-  isBalanced l
-    && isBalanced r
-    && abs (Int.intSubNat (height l) (height r)) <= 1;
+isBalanced n@(node _ _ l r) :=
+  isBalanced l && isBalanced r && abs (diffFactor n) <= 1;
 
 --- 𝒪(𝓃 log 𝓃). Create an ;AVLTree; from an unsorted ;List;.
 fromList : {a : Type} -> Ord a -> List a -> AVLTree a;
@@ -140,15 +149,16 @@ toList : {a : Type} -> AVLTree a -> List a;
 toList empty := nil;
 toList (node x _ l r) := toList l ++ (x :: nil) ++ toList r;
 
---- Returns the textual representation of an ;AVLTree;.
-toString : {a : Type} -> Showing a -> AVLTree a -> String;
-toString {a} (showing show) :=
+toString2 : {a : Type} -> Showing a -> AVLTree a -> String;
+toString2 {a} (showing show) :=
   let
     go : AVLTree a -> String;
     go empty := "_";
-    go (node v h l r) :=
+    go n@(node v h l r) :=
       "("
         ++str go l
+        ++str " h"
+        ++str Int.intToString (diffFactor n)
         ++str " "
         ++str show v
         ++str " "
@@ -156,30 +166,50 @@ toString {a} (showing show) :=
         ++str ")";
   in go;
 
+toTree : {a : Type} -> AVLTree a -> Maybe (Tree a);
+toTree empty := nothing;
+toTree (node v _ l r) :=
+  just
+    (Tree.node v (catMaybes (toTree l :: toTree r :: nil)));
+
+--- Returns the textual representation of an ;AVLTree;.
+toString : {a : Type} -> Showing a -> AVLTree a -> String;
+toString s := maybe "empty" (Tree.treeToString s) ∘ toTree;
+
 avlShowing : {a : Type} -> Showing a -> Showing (AVLTree a);
-avlShowing := showing ∘ toString;
+avlShowing := showing ∘ toString2;
+
+s2 : AVLTree Nat;
+s2 := fromList nat-ordering (1 :: 3 :: 0 :: 4 :: 4 :: 8 :: 2 :: nil);
 
 tests : List Test;
 tests :=
   let
+    s0 : AVLTree Nat;
+    s0 := fromList nat-ordering (1 :: 1 :: nil);
     s1 : AVLTree Nat;
     s1 :=
       fromList nat-ordering (1 :: 2 :: 8 :: 3 :: 3 :: 2 :: nil);
-    s0 : AVLTree Nat;
-    s0 := fromList nat-ordering (1 :: 1 :: nil);
   in testCase
-      "is balanced"
+      "is balanced s1"
       (assertTrue "not balanced" (isBalanced s1))
     :: testCase
-      "size"
-      (assertTrue (natToString (size s1)) (size s1 Nat.== 4))
-    :: testCase
-      "size"
+      "size s1"
       (assertTrue (natToString (size s1)) (size s1 Nat.== 4))
     :: testCase
       "size s0"
       (assertTrue (toString natShowing s0) (size s0 Nat.== 1))
+    :: testCase
+      "size s2"
+      (assertTrue (toString natShowing s2) (size s2 Nat.== 6))
+    :: testCase
+      "balanced s2"
+      (assertTrue "not balanced" (isBalanced s2))
     :: nil;
 
 main : IO;
-main := runTestSuite (testSuite "AVL Set" tests);
+main :=
+  runTestSuite (testSuite "AVL Set" tests)
+    >> printStringLn (toString2 natShowing s2)
+    >> printStringLn (toString natShowing s2)
+    ;
