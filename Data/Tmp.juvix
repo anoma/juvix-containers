@@ -30,3 +30,13 @@ catMaybes (nothing :: hs) := catMaybes hs;
 
 concatMap : {A B : Type} -> (A -> List B) -> List A -> List B;
 concatMap f := flatten ∘ map f;
+
+printNatListLn : List Nat → IO;
+printNatListLn nil := printStringLn "nil";
+printNatListLn (x :: xs) :=
+  printNat x >> printString " :: " >> printNatListLn xs;
+
+--- Absolute value
+abs : Int -> Nat;
+abs (ofNat n) := n;
+abs (negSuc n) := suc n;
