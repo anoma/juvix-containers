@@ -100,6 +100,19 @@ balance n@(node x h l r) :=
         | _ := rotateRight n)
     | LeanNone := n;
 
+--- 𝒪(log 𝓃). Queries whether an element is in an ;AVLTree;.
+member? : {a : Type} -> Ord a -> a -> AVLTree a -> Bool;
+member? {a} (ord cmp) x :=
+  let
+    go : AVLTree a -> Bool;
+    go empty := false;
+    go m@(node y h l r) :=
+      case cmp x y
+        | LT := go l
+        | GT := go r
+        | EQ := true;
+  in go;
+
 --- 𝒪(log 𝓃). Inserts an element into and ;AVLTree;.
 insert : {a : Type} -> Ord a -> a -> AVLTree a -> AVLTree a;
 insert {a} (ord cmp) x :=
