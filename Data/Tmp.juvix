@@ -27,3 +27,6 @@ catMaybes : {A : Type} -> List (Maybe A) -> List A;
 catMaybes nil := nil;
 catMaybes (just h :: hs) := h :: catMaybes hs;
 catMaybes (nothing :: hs) := catMaybes hs;
+
+concatMap : {A B : Type} -> (A -> List B) -> List A -> List B;
+concatMap f := flatten ∘ map f;

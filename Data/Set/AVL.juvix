@@ -13,6 +13,8 @@ open import Stdlib.Prelude;
 import Stdlib.Data.Int as Int;
 import Stdlib.Data.Int.Ord as Int;
 
+open import Data.Eq;
+
 open import Data.Showing;
 open import Data.Tmp;
 open import Stdlib.Data.Ord;
@@ -78,14 +80,6 @@ rotateRight (node z _ (node y _ x t3) t4) :=
   mknode y x (mknode z t3 t4);
 rotateRight n := n;
 
-leftChild : {A : Type} -> AVLTree A -> AVLTree A;
-leftChild empty := empty;
-leftChild (node _ _ l _) := l;
-
-rightChild : {A : Type} -> AVLTree A -> AVLTree A;
-rightChild empty := empty;
-rightChild (node _ _ l r) := r;
-
 balance : {a : Type} -> AVLTree a -> AVLTree a;
 balance empty := empty;
 balance n@(node x h l r) :=
@@ -149,8 +143,9 @@ toList : {a : Type} -> AVLTree a -> List a;
 toList empty := nil;
 toList (node x _ l r) := toList l ++ (x :: nil) ++ toList r;
 
-toString2 : {a : Type} -> Showing a -> AVLTree a -> String;
-toString2 {a} (showing show) :=
+toStringDebug :
+  {a : Type} -> Showing a -> AVLTree a -> String;
+toStringDebug {a} (showing show) :=
   let
     go : AVLTree a -> String;
     go empty := "_";
@@ -177,39 +172,58 @@ toString : {a : Type} -> Showing a -> AVLTree a -> String;
 toString s := maybe "empty" (Tree.treeToString s) ∘ toTree;
 
 avlShowing : {a : Type} -> Showing a -> Showing (AVLTree a);
-avlShowing := showing ∘ toString2;
+avlShowing := showing ∘ toString;
 
-s2 : AVLTree Nat;
-s2 := fromList nat-ordering (1 :: 3 :: 0 :: 4 :: 4 :: 8 :: 2 :: nil);
+--- Test for size and balance.
+mkTests : String × Nat × AVLTree Nat -> List Test;
+mkTests (title, len, s) :=
+  let
+    mkTitle : String -> String;
+    mkTitle m := title ++str " " ++str m;
+    sizeMsg : String := "sizes do not match";
+    balanceMsg : String := "not balanced";
+  in testCase
+      (mkTitle "size")
+      (assertEqual nat-eq sizeMsg (size s) len)
+    :: testCase
+      (mkTitle "balanced")
+      (assertTrue balanceMsg (isBalanced s))
+    :: nil;
+
+TestDescr : Type;
+TestDescr := String × Nat × AVLTree Nat;
+
+s1 : TestDescr;
+s1 :=
+  "s1"
+    , 5
+    , fromList nat-ordering (1 :: 2 :: 8 :: 3 :: 3 :: 2 :: nil);
+
+s2 : TestDescr;
+s2 :=
+  "s2"
+    , 6
+    , fromList
+      nat-ordering
+      (1 :: 3 :: 0 :: 4 :: 4 :: 8 :: 2 :: nil);
+
+s3 : TestDescr;
+s3 :=
+  "s3"
+    , 6
+    , fromList nat-ordering (5 :: 4 :: 3 :: 2 :: 1 :: 0 :: nil);
+
+s4 : TestDescr;
+s4 :=
+  "s4"
+    , 5
+    , fromList nat-ordering (1 :: 2 :: 3 :: 4 :: 5 :: nil);
 
 tests : List Test;
-tests :=
-  let
-    s0 : AVLTree Nat;
-    s0 := fromList nat-ordering (1 :: 1 :: nil);
-    s1 : AVLTree Nat;
-    s1 :=
-      fromList nat-ordering (1 :: 2 :: 8 :: 3 :: 3 :: 2 :: nil);
-  in testCase
-      "is balanced s1"
-      (assertTrue "not balanced" (isBalanced s1))
-    :: testCase
-      "size s1"
-      (assertTrue (natToString (size s1)) (size s1 Nat.== 4))
-    :: testCase
-      "size s0"
-      (assertTrue (toString natShowing s0) (size s0 Nat.== 1))
-    :: testCase
-      "size s2"
-      (assertTrue (toString natShowing s2) (size s2 Nat.== 6))
-    :: testCase
-      "balanced s2"
-      (assertTrue "not balanced" (isBalanced s2))
-    :: nil;
+tests := concatMap mkTests (s1 :: s2 :: s3 :: s4 :: nil);
 
 main : IO;
 main :=
   runTestSuite (testSuite "AVL Set" tests)
-    >> printStringLn (toString2 natShowing s2)
-    >> printStringLn (toString natShowing s2)
-    ;
+    >> printStringLn (toStringDebug natShowing (snd (snd s2)))
+    >> printStringLn (toString natShowing (snd (snd s2)));
