@@ -141,7 +141,7 @@ delete {a} (ord cmp) x :=
                 | just (minRight, r') := balance (mknode minRight l r');
   in go;
 
---- 𝒪(d log 𝓃). Deletes d elements from an ;AVLTree;.
+--- 𝒪(𝒹 log 𝓃). Deletes d elements from an ;AVLTree;.
 deleteMany :
   {a : Type} -> Ord a -> List a -> AVLTree a -> AVLTree a;
 deleteMany o d t :=
