@@ -141,6 +141,17 @@ delete {a} (ord cmp) x :=
                 | just (minRight, r') := balance (mknode minRight l r');
   in go;
 
+--- 𝒪(d log 𝓃). Deletes d elements from an ;AVLTree;.
+deleteMany :
+  {a : Type} -> Ord a -> List a -> AVLTree a -> AVLTree a;
+deleteMany o d t :=
+  foldl
+    λ {
+      | acc x := delete o x acc
+    }
+    t
+    d;
+
 --- 𝒪(𝓃). Checks the ;AVLTree; height invariant. I.e. that
 --- every two children do not differ on height by more than 1.
 isBalanced : {a : Type} -> AVLTree a -> Bool;
@@ -236,7 +247,9 @@ s2-delete : TestDescr;
 s2-delete :=
   case s2
     | t, l, s :=
-      t ++str "-delete", sub l 1, delete nat-ordering 1 s;
+      t ++str "-delete"
+        , sub l 2
+        , deleteMany nat-ordering (1 :: 8 :: nil) s;
 
 s3 : TestDescr;
 s3 :=
