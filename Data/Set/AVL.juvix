@@ -43,11 +43,11 @@ height (node _ h _ _) := h;
 
 type BalanceFactor :=
   | --- Left children is higher.
-    Neg : BalanceFactor
+    LeanLeft : BalanceFactor
   | --- Equal heights of children.
-    Zero : BalanceFactor
+    LeanNone : BalanceFactor
   | --- Right children is higher.
-    Pos : BalanceFactor;
+    LeanRight : BalanceFactor;
 
 diffFactor : {A : Type} -> AVLTree A -> Int;
 diffFactor empty := 0;
@@ -60,7 +60,7 @@ balanceFactor : {A : Type} -> AVLTree A -> BalanceFactor;
 balanceFactor n :=
   let
     diff : Int := diffFactor n;
-  in if (0 Int.< diff) Pos (if (diff Int.< 0) Neg Zero);
+  in if (0 Int.< diff) LeanRight (if (diff Int.< 0) LeanLeft LeanNone);
 
 --- Helper function for creating a node.
 mknode :
@@ -86,15 +86,15 @@ balance n@(node x h l r) :=
   let
     factor : BalanceFactor := balanceFactor n;
   in case factor
-    | Pos :=
+    | LeanRight :=
       (case balanceFactor r
-        | Neg := rotateLeft (mknode x l (rotateRight r))
+        | LeanLeft := rotateLeft (mknode x l (rotateRight r))
         | _ := rotateLeft n)
-    | Neg :=
+    | LeanLeft :=
       (case balanceFactor l
-        | Pos := rotateRight (mknode x (rotateLeft l) r)
+        | LeanRight := rotateRight (mknode x (rotateLeft l) r)
         | _ := rotateRight n)
-    | Zero := n;
+    | LeanNone := n;
 
 printNatListLn : List Nat → IO;
 printNatListLn nil := printStringLn "nil";
