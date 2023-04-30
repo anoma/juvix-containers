@@ -32,7 +32,7 @@ open import Test.JuvixUnit;
 type AVLTree (A : Type) :=
   | --- An empty AVL tree.
     empty : AVLTree A
-  | --- An node of an AVL tree.
+  | --- A node of an AVL tree.
     node : A -> Nat -> AVLTree A -> AVLTree A -> AVLTree A;
 
 --- 𝒪(1) Retrieves the height of an ;AVLTree;. The height is the distance from
