@@ -54,7 +54,7 @@ diffFactor empty := 0;
 diffFactor (node _ _ left right) :=
   Int.intSubNat (height right) (height left);
 
---- 𝒪(1) Computes the balance factor, i.e., the height of the right subtree
+--- 𝒪(1). Computes the balance factor, i.e., the height of the right subtree
 --- minus the height of the left subtree.
 balanceFactor : {A : Type} -> AVLTree A -> BalanceFactor;
 balanceFactor n :=
@@ -65,19 +65,19 @@ balanceFactor n :=
     LeanRight
     (if (diff Int.< 0) LeanLeft LeanNone);
 
---- Helper function for creating a node.
+--- 𝒪(1). Helper function for creating a node.
 mknode :
   {A : Type} -> A -> AVLTree A -> AVLTree A -> AVLTree A;
 mknode val l r :=
   node val (1 + max (height l) (height r)) l r;
 
---- Left rotation.
+--- 𝒪(1). Left rotation.
 rotateLeft : {A : Type} -> AVLTree A -> AVLTree A;
 rotateLeft (node x _ a (node z _ b c)) :=
   mknode z (mknode x a b) c;
 rotateLeft n := n;
 
---- Right rotation.
+--- 𝒪(1). Right rotation.
 rotateRight : {A : Type} -> AVLTree A -> AVLTree A;
 rotateRight (node z _ (node y _ x t3) t4) :=
   mknode y x (mknode z t3 t4);
@@ -197,6 +197,7 @@ toStringDebug {a} (showing show) :=
         ++str ")";
   in go;
 
+--- 𝒪(𝓃).
 toTree : {a : Type} -> AVLTree a -> Maybe (Tree a);
 toTree empty := nothing;
 toTree (node v _ l r) :=
@@ -272,6 +273,6 @@ tests :=
 main : IO;
 main :=
   runTestSuite (testSuite "AVL Set" tests)
-    >> printStringLn (toStringDebug natShowing (snd (snd s2)))
+    >> printStringLn (toStringDebug natShowing (snd (snd s3)))
     >> printStringLn
       (toString natShowing (snd (snd s2-delete)));
