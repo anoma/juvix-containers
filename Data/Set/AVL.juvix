@@ -143,9 +143,8 @@ delete {a} (ord cmp) x :=
         | LT := balance (mknode y (go l) r)
         | GT := balance (mknode y l (go r))
         | EQ :=
-          case l, r
-            | _, empty := l
-            | empty, _ := r
+          case l
+            | empty := r
             | _ :=
               case deleteMin r
                 | nothing := l
