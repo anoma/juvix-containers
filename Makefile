@@ -20,10 +20,15 @@ build/Map: $(wildcard ./**/*.juvix) deps
 	@mkdir -p build/
 	juvix compile Data/Map.juvix -o build/Map
 
+build/AVL: $(wildcard ./**/*.juvix) deps
+	@mkdir -p build/
+	juvix compile Data/Set/AVL.juvix -o build/AVL
+
 .PHONY : test
-test: build/Set build/Map
+test: build/Set build/Map build/AVL
 	./build/Set
 	./build/Map
+	./build/AVL
 
 .PHONY: clean-build
 clean-build:
