@@ -3,6 +3,13 @@ module Data.Tmp;
 
 open import Stdlib.Prelude;
 
+import Stdlib.Data.Int as Int;
+import Stdlib.Data.Int.Ord as Int;
+
+open import Data.Ord using {Ord;ord} public;
+open import Data.Show using {Show;show} public;
+open import Data.Eq using {Eq;eq} public;
+
 unlines : List String -> String;
 unlines nil := "";
 unlines (x :: xs) := x ++str "\n" ++str unlines xs;
@@ -28,7 +35,8 @@ catMaybes nil := nil;
 catMaybes (just h :: hs) := h :: catMaybes hs;
 catMaybes (nothing :: hs) := catMaybes hs;
 
-concatMap : {A B : Type} -> (A -> List B) -> List A -> List B;
+concatMap :
+  {A B : Type} -> (A -> List B) -> List A -> List B;
 concatMap f := flatten ∘ map f;
 
 printNatListLn : List Nat → IO;

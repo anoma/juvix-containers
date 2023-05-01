@@ -9,6 +9,7 @@
 module Data.Set.AVL;
 
 open import Stdlib.Prelude;
+open import Data.Tmp;
 
 import Stdlib.Data.Int as Int;
 import Stdlib.Data.Int.Ord as Int;
@@ -16,12 +17,6 @@ import Stdlib.Data.Int.Ord as Int;
 import Data.Eq as Eq;
 import Data.Ord as Ord;
 import Data.Show as Show;
-
-open import Data.Tmp;
-open import Stdlib.Data.Ord;
-
-open import Data.Ord using {Ord;ord};
-open import Data.Show using {Show;show};
 
 import Data.Tree as Tree;
 open Tree using {Tree;Forest};
