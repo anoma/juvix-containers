@@ -16,6 +16,7 @@ import Stdlib.Data.Int.Ord as Int;
 
 import Data.Eq as Eq;
 import Data.Ord as Ord;
+open import Stdlib.Data.Ord;
 import Data.Show as Show;
 
 import Data.Tree as Tree;
@@ -277,6 +278,6 @@ tests :=
 
 main : IO;
 main :=
-  runTestSuite (testSuite "AVL Set" tests)
-    >> printStringLn (toStringDebug Show.nat (snd (snd s3)))
-    >> printStringLn (toString Show.nat (snd (snd s2-delete)));
+  printStringLn (toString Show.nat (snd (snd s1)))
+    >> printStringLn (toStringDebug Show.nat (snd (snd s1)))
+    >> runTestSuite (testSuite "AVL Set" tests);

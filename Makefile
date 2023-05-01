@@ -20,7 +20,7 @@ build/Map: $(wildcard ./**/*.juvix) deps
 	@mkdir -p build/
 	juvix compile Data/Map.juvix -o build/Map
 
-build/AVL: $(wildcard ./**/*.juvix) deps
+build/AVL: $(shell find . -name '*.juvix') deps
 	@mkdir -p build/
 	juvix compile Data/Set/AVL.juvix -o build/AVL
 
