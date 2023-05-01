@@ -14,11 +14,11 @@ deps: deps/traits deps/test
 
 build/Set: $(wildcard ./**/*.juvix) deps
 	@mkdir -p build/
-	juvix compile Data/Set.juvix -o build/Set
+	juvix compile Test/Set.juvix -o build/Set
 
 build/Map: $(wildcard ./**/*.juvix) deps
 	@mkdir -p build/
-	juvix compile Data/Map.juvix -o build/Map
+	juvix compile Test/Map.juvix -o build/Map
 
 build/AVL: $(shell find . -name '*.juvix') deps
 	@mkdir -p build/
