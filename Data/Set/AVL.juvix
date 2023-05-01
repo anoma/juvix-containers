@@ -16,7 +16,9 @@ import Stdlib.Data.Int.Ord as Int;
 
 import Data.Eq as Eq;
 import Data.Ord as Ord;
+
 open import Stdlib.Data.Ord;
+
 import Data.Show as Show;
 
 import Data.Tree as Tree;
@@ -145,9 +147,7 @@ delete {a} (ord cmp) x :=
             | _, empty := l
             | empty, _ := r
             | _ :=
-              let
-                minRightMay : Maybe (a × AVLTree a) := deleteMin r;
-              in case minRightMay
+              case deleteMin r
                 | nothing := l
                 | just (minRight, r') := balance (mknode minRight l r');
   in go;
