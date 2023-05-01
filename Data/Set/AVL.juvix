@@ -244,7 +244,7 @@ s1 : TestDescr;
 s1 :=
   "s1"
     , 5
-    , fromList Ord.nat (1 :: 2 :: 8 :: 3 :: 3 :: 2 :: nil);
+    , fromList Ord.nat (1 :: 2 :: 8 :: 3 :: 3 :: 2 :: 9 :: nil);
 
 s2 : TestDescr;
 s2 :=
