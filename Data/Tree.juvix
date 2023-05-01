@@ -2,7 +2,7 @@
 module Data.Tree;
 
 open import Stdlib.Prelude;
-open import Data.Showing;
+open import Data.Show;
 open import Data.Tmp;
 
 --- A ;List; of trees.
@@ -20,16 +20,16 @@ shift :
 shift n first other :=
   zipWith (++str) (first :: replicate n other);
 
-draw : {A : Type} -> Showing A -> Tree A -> List String;
+draw : {A : Type} -> Show A -> Tree A -> List String;
 
 drawForest :
-  {A : Type} -> Showing A -> Forest A -> List String;
+  {A : Type} -> Show A -> Forest A -> List String;
 
-draw {A} s@(showing show) (node v cs) :=
+draw {A} s@(show fshow) (node v cs) :=
   let
     go : Tree A -> List String;
     go := draw s;
-  in show v :: drawForest s cs;
+  in fshow v :: drawForest s cs;
 
 drawForest s nil := nil;
 drawForest s (h :: nil) :=
@@ -37,8 +37,8 @@ drawForest s (h :: nil) :=
 drawForest s (h :: hs) :=
   "|" :: shift 300 "+- " "|  " (draw s h) ++ drawForest s hs;
 
-treeToString : {A : Type} -> Showing A -> Tree A -> String;
+treeToString : {A : Type} -> Show A -> Tree A -> String;
 treeToString s := unlines ∘ draw s;
 
-forestToString : {A : Type} -> Showing A -> Forest A -> String;
+forestToString : {A : Type} -> Show A -> Forest A -> String;
 forestToString s := unlines ∘ drawForest s;
