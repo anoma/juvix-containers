@@ -151,6 +151,20 @@ delete {a} (ord cmp) x :=
                 | just (minRight, r') := balance (mknode minRight l r');
   in go;
 
+--- 𝒪(log 𝓃). Returns the minimum element of the ;AVLTree;.
+lookupMin : {a : Type} -> AVLTree a -> Maybe a;
+lookupMin empty := nothing;
+lookupMin (node y _ empty empty) := just y;
+lookupMin (node _ _ empty r) := lookupMin r;
+lookupMin (node _ _ l _) := lookupMin l;
+
+--- 𝒪(log 𝓃). Returns the maximum element of the ;AVLTree;.
+lookupMax : {a : Type} -> AVLTree a -> Maybe a;
+lookupMax empty := nothing;
+lookupMax (node y _ empty empty) := just y;
+lookupMax (node _ _ l empty) := lookupMax l;
+lookupMax (node _ _ _ r) := lookupMax r;
+
 --- 𝒪(𝒹 log 𝓃). Deletes d elements from an ;AVLTree;.
 deleteMany :
   {a : Type} -> Ord a -> List a -> AVLTree a -> AVLTree a;
