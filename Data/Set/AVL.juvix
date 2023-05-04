@@ -94,7 +94,13 @@ balance n@(node x h l r) :=
 
 --- 𝒪(log 𝓃). Lookup a member from the ;AVLTree; using a projection function.
 --- Ord a, Ord k and f must be compatible. i.e cmp_k (f a1) (f a2) == cmp_a a1 a2
-lookupWith : {a k : Type} -> Ord k -> (a -> k) -> k -> AVLTree a -> Maybe a;
+lookupWith :
+  {a k : Type}
+    -> Ord k
+    -> (a -> k)
+    -> k
+    -> AVLTree a
+    -> Maybe a;
 lookupWith {a} (mkOrd cmp) f x :=
   let
     go : AVLTree a -> Maybe a;
@@ -115,7 +121,13 @@ member? {a} o x := isJust ∘ lookupWith o id x;
 ---
 --- Assumption: Given a1 == a2 then f a1 a2 == a1 == a2
 --- where == comes from Ord a.
-insertWith : {a : Type} -> Ord a -> (a -> a -> a) -> a -> AVLTree a -> AVLTree a;
+insertWith :
+  {a : Type}
+    -> Ord a
+    -> (a -> a -> a)
+    -> a
+    -> AVLTree a
+    -> AVLTree a;
 insertWith {a} (mkOrd cmp) f x :=
   let
     go : AVLTree a -> AVLTree a;
@@ -208,8 +220,8 @@ toList empty := nil;
 toList (node x _ l r) := toList l ++ (x :: nil) ++ toList r;
 
 --- 𝒪(𝓃). Formats the tree in a debug friendly format.
-toStringDebug : {a : Type} -> Show a -> AVLTree a -> String;
-toStringDebug {a} (mkShow fshow) :=
+prettyDebug : {a : Type} -> Show a -> AVLTree a -> String;
+prettyDebug {a} (mkShow fshow) :=
   let
     go : AVLTree a -> String;
     go empty := "_";
@@ -233,8 +245,27 @@ toTree (node v _ l r) :=
     (Tree.node v (catMaybes (toTree l :: toTree r :: nil)));
 
 --- Returns the textual representation of an ;AVLTree;.
-toString : {a : Type} -> Show a -> AVLTree a -> String;
-toString s := maybe "empty" (Tree.treeToString s) ∘ toTree;
+pretty : {a : Type} -> Show a -> AVLTree a -> String;
+pretty s := maybe "empty" (Tree.treeToString s) ∘ toTree;
 
-avlShowing : {a : Type} -> Show a -> Show (AVLTree a);
-avlShowing := mkShow ∘ toString;
+module AVLTraits;
+
+  Eq : {a : Type} -> Eq a -> Eq (AVLTree a);
+  Eq {a} e :=
+    let
+      eqList : List a -> List a -> Bool;
+      eqList :=
+        case ListTraits.Eq e
+          | mkEq f := f;
+    in mkEq (eqList on toList);
+
+  Ord : {a : Type} -> Ord a -> Ord (AVLTree a);
+  Ord {a} o :=
+    let
+      ordList : List a -> List a -> Ordering;
+      ordList :=
+        case ListTraits.Ord o
+          | mkOrd f := f;
+    in mkOrd (ordList on toList);
+
+end;
