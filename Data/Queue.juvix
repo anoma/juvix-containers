@@ -1,0 +1,4 @@
+module Data.Queue;
+
+open import Data.Queue.Base;
+open import Data.Queue.Traits;

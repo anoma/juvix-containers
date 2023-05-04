@@ -1,0 +1,39 @@
+module Data.Queue.Traits;
+
+open import Data.Queue.Base;
+open import Stdlib.Data.List;
+open import Stdlib.Data.Bool;
+open import Stdlib.Data.String;
+
+import Stdlib.Trait as T;
+
+Eq : {A : Type} -> T.Eq A -> T.Eq (Queue A);
+Eq {A} eq-a :=
+  let
+    list-eq : List A -> List A -> Bool;
+    list-eq := T.eq (ListTraits.Eq eq-a);
+    go : Queue A -> Queue A -> Bool;
+    go (queue f1 b1) (queue f2 b2) :=
+      list-eq f1 f1 && list-eq b1 b2;
+  in T.mkEq go;
+
+eq : {A : Type} -> T.Eq A -> Queue A -> Queue A -> Bool;
+eq {A} eq-a := T.eq (Eq eq-a);
+
+Show : {A : Type} -> T.Show A -> T.Show (Queue A);
+Show {A} showA :=
+  T.mkShow
+    λ {
+      | q := T.show (ListTraits.Show showA) (toList q)
+    };
+
+show : {A : Type} -> T.Show A -> Queue A -> String;
+show {A} showA := T.show (Show showA);
+
+Ord : {A : Type} -> T.Ord A -> T.Ord (Queue A);
+Ord {A} ord-A :=
+  let
+    go : Queue A -> Queue A -> T.Ordering;
+    go q1 q2 :=
+      T.cmp (ListTraits.Ord ord-A) (toList q1) (toList q2);
+  in T.mkOrd go;

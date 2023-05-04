@@ -1,0 +1,57 @@
+--- This module provides an implementation of a First-In, First-Out (FIFO)
+--- queue based on Okasaki's "Purely Functional Data Structures." Ch.3.
+---
+--- This Okasaki Queue version data structure ensures worst-case constant-time
+--- performance for basic operations such as push, pop, and front.
+---
+--- The OkasakiQueue consists of two lists (front and back) to separate
+--- the concerns of adding and removing elements for ensuring efficient
+--- performance.
+module Data.Queue.Base;
+
+open import Stdlib.Data.List;
+open import Stdlib.Data.Bool;
+open import Stdlib.Data.Maybe;
+
+--- The Queue data structure is a wrapper around two lists.
+type Queue (A : Type) :=
+  | queue : List A -> List A -> Queue A;
+
+--- toList: O(n) where n is the number of elements in the queue
+toList : {A : Type} -> Queue A -> List A;
+toList (queue front back) := front ++ reverse back;
+
+--- empty: O(1)
+empty : {A : Type} -> Queue A;
+empty := queue nil nil;
+
+--- isEmpty: O(1)
+isEmpty : {A : Type} -> Queue A -> Bool;
+isEmpty (queue nil nil) := true;
+isEmpty _ := false;
+
+--- head: O(1)
+head : {A : Type} -> Queue A -> Maybe A;
+head (queue nil _) := nothing;
+head (queue (x :: _) _) := just x;
+
+--- tail: O(1)
+tail : {A : Type} -> Queue A -> Maybe (Queue A);
+tail (queue nil _) := nothing;
+tail (queue (_ :: front) back) := just (queue front back);
+
+--- check: O(n) in the worst-case scenario, but O(1) amortized
+--- due to infrequent calls. Called queue in the book.
+check : {A : Type} -> Queue A -> Queue A;
+check (queue nil back) := queue (reverse back) nil;
+check q := q;
+
+--- pop: O(1) worst-case, O(1) amortized
+pop : {A : Type} -> Queue A -> Maybe (Queue A);
+pop (queue nil _) := nothing;
+pop (queue front back) := just (check (queue front back));
+
+--- push: O(1) worst-case, O(1) amortized
+push : {A : Type} -> A -> Queue A -> Queue A;
+push x (queue front back) :=
+  check (queue front (x :: back));
