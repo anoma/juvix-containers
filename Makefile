@@ -13,9 +13,9 @@ deps/test:
 
 deps: deps/stdlib deps/test
 
-build/Set: $(wildcard ./**/*.juvix) deps
+build/UnbalancedSet: $(wildcard ./**/*.juvix) deps
 	@mkdir -p build/
-	juvix compile Test/Set.juvix -o build/Set
+	juvix compile Test/UnbalancedSet.juvix -o build/UnbalancedSet
 
 build/Map: $(wildcard ./**/*.juvix) deps
 	@mkdir -p build/
@@ -23,11 +23,11 @@ build/Map: $(wildcard ./**/*.juvix) deps
 
 build/AVL: $(shell find . -name '*.juvix') deps
 	@mkdir -p build/
-	juvix compile Data/Set/AVL.juvix -o build/AVL
+	juvix compile Test/AVL.juvix -o build/AVL
 
 .PHONY : test
-test: build/Set build/Map build/AVL
-	./build/Set
+test: build/UnbalancedSet build/Map build/AVL
+	./build/UnbalancedSet
 	./build/Map
 	./build/AVL
 

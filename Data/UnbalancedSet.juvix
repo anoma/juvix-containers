@@ -1,0 +1,60 @@
+module Data.UnbalancedSet;
+
+open import Stdlib.Prelude hiding {length};
+
+open import Test.JuvixUnit;
+
+import Stdlib.Trait.Ord as Ord;
+
+import Data.BinaryTree as Tree;
+open Tree using {BinaryTree;binaryTree;leaf;node};
+
+type UnbalancedSet (A : Type) :=
+  | unbalancedSet : Ord A
+      -> BinaryTree A
+      -> UnbalancedSet A;
+
+empty : {A : Type} -> Ord A -> UnbalancedSet A;
+empty o := unbalancedSet o leaf;
+
+member? : {A : Type} -> A -> UnbalancedSet A -> Bool;
+member? {A} x (unbalancedSet o@(mkOrd cmp) t) :=
+  let
+    go : BinaryTree A -> Bool;
+    go leaf := false;
+    go (node l y r) :=
+      case cmp x y
+        | Ord.LT := go l
+        | Ord.GT := go r
+        | Ord.EQ := true
+  in go t;
+
+insert :
+  {A : Type} -> A -> UnbalancedSet A -> UnbalancedSet A;
+insert {A} x (unbalancedSet o@(mkOrd cmp) t) :=
+  let
+    go : BinaryTree A -> BinaryTree A;
+    go leaf := node leaf x leaf;
+    go n@(node l y r) :=
+      case cmp x y
+        | Ord.LT := node (go l) y r
+        | Ord.EQ := n
+        | Ord.GT := node l y (go r);
+  in unbalancedSet o (go t);
+
+length : {A : Type} -> UnbalancedSet A -> Nat;
+length (unbalancedSet _ t) := Tree.length t;
+
+to-list : {A : Type} -> UnbalancedSet A -> List A;
+to-list (unbalancedSet _ t) := Tree.to-list t;
+
+set-ordering : {A : Type} -> Ord A -> Ord (UnbalancedSet A);
+set-ordering {A} o :=
+  let
+    from-ord-list : Ord (List A) -> Ord (UnbalancedSet A);
+    from-ord-list (mkOrd cmp) :=
+      mkOrd
+        λ {
+          | s1 s2 := cmp (to-list s1) (to-list s2)
+        };
+  in from-ord-list (ListTraits.Ord o);

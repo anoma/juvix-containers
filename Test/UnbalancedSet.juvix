@@ -1,10 +1,10 @@
-module Test.Set;
+module Test.UnbalancedSet;
 
 open import Stdlib.Prelude;
 open import Test.JuvixUnit;
 
-import Data.Set as Set;
-open Set using {UnbalancedSet;Set};
+import Data.UnbalancedSet as Set;
+open Set using {UnbalancedSet};
 
 tests : List Test;
 tests :=
@@ -16,7 +16,7 @@ tests :=
         (Set.insert
           3
           (Set.insert 2 (Set.insert 1 (Set.empty NatTraits.Ord))));
-    setInSet : Set (Set Nat);
+    setInSet : UnbalancedSet (UnbalancedSet Nat);
     setInSet :=
       Set.insert s (Set.empty (Set.set-ordering NatTraits.Ord));
   in testCase

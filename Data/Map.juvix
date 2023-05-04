@@ -4,7 +4,9 @@ open import Stdlib.Prelude hiding {length};
 
 import Stdlib.Data.Nat.Ord as Nat;
 import Data.Set as Set;
+open Set using {Set};
 import Data.BinaryTree as Tree;
+open import Data.Tmp;
 
 open import Test.JuvixUnit;
 
@@ -17,88 +19,63 @@ key (binding a _) := a;
 value : {A B : Type} -> Binding A B -> B;
 value (binding _ b) := b;
 
-to-pair : {A B : Type} -> Binding A B -> A × B;
-to-pair (binding a b) := a, b;
+toPair : {A B : Type} -> Binding A B -> A × B;
+toPair (binding a b) := a, b;
 
-binding-key-ordering :
+bindingKeyOrdering :
   {A B : Type} -> Ord A -> Ord (Binding A B);
-binding-key-ordering (mkOrd cmp) :=
+bindingKeyOrdering (mkOrd cmp) :=
   mkOrd
     λ {
       | b1 b2 := cmp (key b1) (key b2)
     };
+type Map (A B : Type) :=
+  mkMap : Set (Binding A B) -> Map A B;
 
-type FiniteMap (A B : Type) :=
-  | finiteMap : Ord A
-      -> Set.UnbalancedSet (Binding A B)
-      -> FiniteMap A B;
+empty : {A B : Type} -> Map A B;
+empty := mkMap Set.empty;
 
-Map : Type -> Type -> Type;
-Map A B := FiniteMap A B;
-
-empty : {A B : Type} -> Ord A -> FiniteMap A B;
-empty o := finiteMap o (Set.empty (binding-key-ordering o));
-
-bind-with :
+insertWith :
   {A B : Type}
+    -> Ord A
     -> (B -> B -> B)
     -> A
     -> B
-    -> FiniteMap A B
-    -> FiniteMap A B;
-bind-with {A} {B} f k v (finiteMap o@(mkOrd cmp) (Set.unbalancedSet _ t)) :=
+    -> Map A B
+    -> Map A B;
+insertWith {A} {B} o f k v (mkMap s) :=
   let
-    go :
-        Tree.BinaryTree (Binding A B)
-          -> Tree.BinaryTree (Binding A B);
-    go Tree.leaf := Tree.node Tree.leaf (binding k v) Tree.leaf;
-    go n@(Tree.node l b r) :=
-      let
-        mergeBinding : Binding A B;
-        mergeBinding := binding (key b) (f (value b) v);
-      in case cmp k (key b)
-        | EQ := Tree.node l mergeBinding r
-        | LT := Tree.node (go l) b r
-        | GT := Tree.node l b (go r);
-  in finiteMap
-    o
-    (Set.unbalancedSet (binding-key-ordering o) (go t));
+    f' : Binding A B -> Binding A B -> Binding A B;
+    f' (binding a b1) (binding _ b2) := binding a (f b1 b2);
+  in
+    mkMap (Set.insertWith (bindingKeyOrdering o) f' (binding k v) s);
 
-bind :
-  {A B : Type} -> A -> B -> FiniteMap A B -> FiniteMap A B;
-bind :=
-  bind-with
+insert :
+  {A B : Type} -> Ord A -> A -> B -> Map A B -> Map A B;
+insert o :=
+  insertWith o
     λ {
       | old new := new
     };
 
-lookup : {A B : Type} -> A -> FiniteMap A B -> Maybe B;
-lookup {A} {B} k (finiteMap (mkOrd cmp) (Set.unbalancedSet _ t)) :=
-  let
-    go : Tree.BinaryTree (Binding A B) -> Maybe B;
-    go Tree.leaf := nothing;
-    go (Tree.node l b r) :=
-      case cmp k (key b)
-        | EQ := just (value b)
-        | LT := go l
-        | GT := go r;
-  in go t;
+lookup : {A B : Type} -> Ord A -> A -> Map A B -> Maybe B;
+lookup {A} {B} o k (mkMap s) := mapMaybe value (Set.lookupWith o key k s);
 
 from-list-with :
   {A B : Type}
     -> Ord A
     -> (B -> B -> B)
     -> List (A × B)
-    -> FiniteMap A B;
+    -> Map A B;
 from-list-with o f :=
   foldl
     λ {
-      | m (k, v) := bind-with f k v m
+      | m (k, v) := insertWith o f k v m
     }
-    (empty o);
+    empty;
 
-to-list : {A B : Type} -> FiniteMap A B -> List (A × B);
-to-list (finiteMap _ s) := map to-pair (Set.to-list s);
+toList : {A B : Type} -> Map A B -> List (A × B);
+toList (mkMap s) := map toPair (Set.toList s);
 
-length : {A B : Type} -> FiniteMap A B -> Nat;
-length (finiteMap _ uset) := Set.length uset;
+size : {A B : Type} -> Map A B -> Nat;
+size (mkMap s) := Set.size s;
