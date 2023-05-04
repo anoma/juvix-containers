@@ -8,7 +8,7 @@ deps/stdlib:
 
 deps/test:
 	@mkdir -p deps/
-	@git clone --branch v0.4.0 --depth 1 https://github.com/paulcadman/test.git deps/test
+	@git clone --branch v0.4.0 --depth 1 https://github.com/anoma/juvix-test.git deps/test
 	$(MAKE) -C deps/test deps
 
 deps: deps/stdlib deps/test
