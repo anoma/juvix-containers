@@ -14,9 +14,9 @@ type Tree (A : Type) :=
 Forest A := List (Tree A);
 
 shift :
-  Nat -> String -> String -> List String -> List String;
-shift n first other :=
-  zipWith (++str) (first :: replicate n other);
+  String -> String -> List String -> List String;
+shift first other xs :=
+  zipWith (++str) (first :: replicate (length xs) other) xs;
 
 draw : {A : Type} -> Show A -> Tree A -> List String;
 
@@ -31,9 +31,9 @@ draw {A} s@(mkShow fshow) (node v cs) :=
 
 drawForest s nil := nil;
 drawForest s (h :: nil) :=
-  "|" :: shift 300 "`- " "   " (draw s h);
+  "|" :: shift "`- " "   " (draw s h);
 drawForest s (h :: hs) :=
-  "|" :: shift 300 "+- " "|  " (draw s h) ++ drawForest s hs;
+  "|" :: shift "+- " "|  " (draw s h) ++ drawForest s hs;
 
 treeToString : {A : Type} -> Show A -> Tree A -> String;
 treeToString s := unlines ∘ draw s;
