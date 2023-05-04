@@ -5,7 +5,9 @@ open import Stdlib.Prelude hiding {length};
 import Stdlib.Data.Nat.Ord as Nat;
 import Data.Set as Set;
 open Set using {Set};
+
 import Data.BinaryTree as Tree;
+
 open import Data.Tmp;
 
 open import Test.JuvixUnit;
@@ -29,8 +31,9 @@ bindingKeyOrdering (mkOrd cmp) :=
     λ {
       | b1 b2 := cmp (key b1) (key b2)
     };
+
 type Map (A B : Type) :=
-  mkMap : Set (Binding A B) -> Map A B;
+  | mkMap : Set (Binding A B) -> Map A B;
 
 empty : {A B : Type} -> Map A B;
 empty := mkMap Set.empty;
@@ -47,19 +50,21 @@ insertWith {A} {B} o f k v (mkMap s) :=
   let
     f' : Binding A B -> Binding A B -> Binding A B;
     f' (binding a b1) (binding _ b2) := binding a (f b1 b2);
-  in
-    mkMap (Set.insertWith (bindingKeyOrdering o) f' (binding k v) s);
+  in mkMap
+    (Set.insertWith (bindingKeyOrdering o) f' (binding k v) s);
 
 insert :
   {A B : Type} -> Ord A -> A -> B -> Map A B -> Map A B;
 insert o :=
-  insertWith o
+  insertWith
+    o
     λ {
       | old new := new
     };
 
 lookup : {A B : Type} -> Ord A -> A -> Map A B -> Maybe B;
-lookup {A} {B} o k (mkMap s) := mapMaybe value (Set.lookupWith o key k s);
+lookup {A} {B} o k (mkMap s) :=
+  mapMaybe value (Set.lookupWith o key k s);
 
 from-list-with :
   {A B : Type}
@@ -79,3 +84,25 @@ toList (mkMap s) := map toPair (Set.toList s);
 
 size : {A B : Type} -> Map A B -> Nat;
 size (mkMap s) := Set.size s;
+
+module MapTraits;
+
+  Eq : {A B : Type} -> Eq A -> Eq B -> Eq (Map A B);
+  Eq {A} {B} eqA eqB :=
+    let
+      eqList : List (A × B) -> List (A × B) -> Bool;
+      eqList :=
+        case ListTraits.Eq (ProductTraits.Eq eqA eqB)
+          | mkEq f := f;
+    in mkEq (eqList on toList);
+
+  Ord : {A B : Type} -> Ord A -> Ord B -> Ord (Map A B);
+  Ord {A} {B} ordA ordB :=
+    let
+      ordList : List (A × B) -> List (A × B) -> Ordering;
+      ordList :=
+        case ListTraits.Ord (ProductTraits.Ord ordA ordB)
+          | mkOrd f := f;
+    in mkOrd (ordList on toList);
+
+end;
