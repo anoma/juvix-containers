@@ -1,0 +1,296 @@
+--- AVL trees are a type of self-balancing binary search tree, where the heights
+--- of the left and right subtrees of every node differ by at most 1. This
+--- ensures that the height of the tree is logarithmic in the number of nodes,
+--- which guarantees efficient insertion, deletion, and search operations (all
+--- are guaranteed to run in 𝒪(log 𝓃) time).
+---
+--- This module defines an AVL tree data type and provides functions for
+--- constructing, modifying, and querying AVL trees.
+module Data.Set.AVL;
+
+open import Stdlib.Prelude;
+open import Data.Tmp;
+
+import Stdlib.Data.Int as Int;
+import Stdlib.Data.Int.Ord as Int;
+
+import Data.Eq as Eq;
+import Data.Ord as Ord;
+
+open import Stdlib.Data.Ord;
+
+import Data.Show as Show;
+
+import Data.Tree as Tree;
+open Tree using {Tree;Forest};
+
+import Stdlib.Data.Nat.Ord as Nat;
+open Nat;
+open import Test.JuvixUnit;
+
+--- A self-balancing binary search tree.
+type AVLTree (A : Type) :=
+  | --- An empty AVL tree.
+    empty : AVLTree A
+  | --- A node of an AVL tree.
+    node : A -> Nat -> AVLTree A -> AVLTree A -> AVLTree A;
+
+--- 𝒪(1) Retrieves the height of an ;AVLTree;. The height is the distance from
+--- the root to the deepest child.
+height : {A : Type} -> AVLTree A -> Nat;
+height empty := 0;
+height (node _ h _ _) := h;
+
+type BalanceFactor :=
+  | --- Left children is higher.
+    LeanLeft : BalanceFactor
+  | --- Equal heights of children.
+    LeanNone : BalanceFactor
+  | --- Right children is higher.
+    LeanRight : BalanceFactor;
+
+diffFactor : {A : Type} -> AVLTree A -> Int;
+diffFactor empty := 0;
+diffFactor (node _ _ left right) :=
+  Int.intSubNat (height right) (height left);
+
+--- 𝒪(1). Computes the balance factor, i.e., the height of the right subtree
+--- minus the height of the left subtree.
+balanceFactor : {A : Type} -> AVLTree A -> BalanceFactor;
+balanceFactor n :=
+  let
+    diff : Int := diffFactor n;
+  in if
+    (0 Int.< diff)
+    LeanRight
+    (if (diff Int.< 0) LeanLeft LeanNone);
+
+--- 𝒪(1). Helper function for creating a node.
+mknode :
+  {A : Type} -> A -> AVLTree A -> AVLTree A -> AVLTree A;
+mknode val l r :=
+  node val (1 + max (height l) (height r)) l r;
+
+--- 𝒪(1). Left rotation.
+rotateLeft : {A : Type} -> AVLTree A -> AVLTree A;
+rotateLeft (node x _ a (node z _ b c)) :=
+  mknode z (mknode x a b) c;
+rotateLeft n := n;
+
+--- 𝒪(1). Right rotation.
+rotateRight : {A : Type} -> AVLTree A -> AVLTree A;
+rotateRight (node z _ (node y _ x t3) t4) :=
+  mknode y x (mknode z t3 t4);
+rotateRight n := n;
+
+--- 𝒪(1). Applies local rotations if needed.
+balance : {a : Type} -> AVLTree a -> AVLTree a;
+balance empty := empty;
+balance n@(node x h l r) :=
+  let
+    factor : BalanceFactor := balanceFactor n;
+  in case factor
+    | LeanRight :=
+      (case balanceFactor r
+        | LeanLeft := rotateLeft (mknode x l (rotateRight r))
+        | _ := rotateLeft n)
+    | LeanLeft :=
+      (case balanceFactor l
+        | LeanRight := rotateRight (mknode x (rotateLeft l) r)
+        | _ := rotateRight n)
+    | LeanNone := n;
+
+--- 𝒪(log 𝓃). Queries whether an element is in an ;AVLTree;.
+member? : {a : Type} -> Ord a -> a -> AVLTree a -> Bool;
+member? {a} (ord cmp) x :=
+  let
+    go : AVLTree a -> Bool;
+    go empty := false;
+    go m@(node y h l r) :=
+      case cmp x y
+        | LT := go l
+        | GT := go r
+        | EQ := true;
+  in go;
+
+--- 𝒪(log 𝓃). Inserts an element into and ;AVLTree;.
+insert : {a : Type} -> Ord a -> a -> AVLTree a -> AVLTree a;
+insert {a} (ord cmp) x :=
+  let
+    go : AVLTree a -> AVLTree a;
+    go empty := mknode x empty empty;
+    go m@(node y h l r) :=
+      case cmp x y
+        | LT := balance (mknode y (go l) r)
+        | GT := balance (mknode y l (go r))
+        | EQ := m;
+  in go;
+
+--- 𝒪(log 𝓃). Removes an element from an ;AVLTree;.
+delete : {a : Type} -> Ord a -> a -> AVLTree a -> AVLTree a;
+delete {a} (ord cmp) x :=
+  let
+    deleteMin : AVLTree a -> Maybe (a × AVLTree a);
+    deleteMin empty := nothing;
+    deleteMin (node v _ l r) :=
+      case deleteMin l
+        | nothing := just (v, r)
+        | just (m, l') := just (m, mknode v l' r);
+    go : AVLTree a -> AVLTree a;
+    go empty := empty;
+    go (node y h l r) :=
+      case cmp x y
+        | LT := balance (mknode y (go l) r)
+        | GT := balance (mknode y l (go r))
+        | EQ :=
+          case l
+            | empty := r
+            | _ :=
+              case deleteMin r
+                | nothing := l
+                | just (minRight, r') := balance (mknode minRight l r');
+  in go;
+
+--- 𝒪(log 𝓃). Returns the minimum element of the ;AVLTree;.
+lookupMin : {a : Type} -> AVLTree a -> Maybe a;
+lookupMin empty := nothing;
+lookupMin (node y _ empty empty) := just y;
+lookupMin (node _ _ empty r) := lookupMin r;
+lookupMin (node _ _ l _) := lookupMin l;
+
+--- 𝒪(log 𝓃). Returns the maximum element of the ;AVLTree;.
+lookupMax : {a : Type} -> AVLTree a -> Maybe a;
+lookupMax empty := nothing;
+lookupMax (node y _ empty empty) := just y;
+lookupMax (node _ _ l empty) := lookupMax l;
+lookupMax (node _ _ _ r) := lookupMax r;
+
+--- 𝒪(𝒹 log 𝓃). Deletes d elements from an ;AVLTree;.
+deleteMany :
+  {a : Type} -> Ord a -> List a -> AVLTree a -> AVLTree a;
+deleteMany o d t :=
+  foldl
+    λ {
+      | acc x := delete o x acc
+    }
+    t
+    d;
+
+--- 𝒪(𝓃). Checks the ;AVLTree; height invariant. I.e. that
+--- every two children do not differ on height by more than 1.
+isBalanced : {a : Type} -> AVLTree a -> Bool;
+isBalanced empty := true;
+isBalanced n@(node _ _ l r) :=
+  isBalanced l && isBalanced r && abs (diffFactor n) <= 1;
+
+--- 𝒪(𝓃 log 𝓃). Create an ;AVLTree; from an unsorted ;List;.
+fromList : {a : Type} -> Ord a -> List a -> AVLTree a;
+fromList o :=
+  foldl
+    λ {
+      | acc x := insert o x acc
+    }
+    empty;
+
+--- 𝒪(𝓃). Returns the number of elements of an ;AVLTree;.
+size : {a : Type} -> AVLTree a -> Nat;
+size empty := 0;
+size (node _ _ l r) := 1 + size l + size r;
+
+--- 𝒪(𝓃). Returns the elements of an ;AVLTree; in ascending order.
+toList : {a : Type} -> AVLTree a -> List a;
+toList empty := nil;
+toList (node x _ l r) := toList l ++ (x :: nil) ++ toList r;
+
+--- 𝒪(𝓃). Formats the tree in a debug friendly format.
+toStringDebug : {a : Type} -> Show a -> AVLTree a -> String;
+toStringDebug {a} (show fshow) :=
+  let
+    go : AVLTree a -> String;
+    go empty := "_";
+    go n@(node v h l r) :=
+      "("
+        ++str go l
+        ++str " h"
+        ++str Int.intToString (diffFactor n)
+        ++str " "
+        ++str fshow v
+        ++str " "
+        ++str go r
+        ++str ")";
+  in go;
+
+--- 𝒪(𝓃).
+toTree : {a : Type} -> AVLTree a -> Maybe (Tree a);
+toTree empty := nothing;
+toTree (node v _ l r) :=
+  just
+    (Tree.node v (catMaybes (toTree l :: toTree r :: nil)));
+
+--- Returns the textual representation of an ;AVLTree;.
+toString : {a : Type} -> Show a -> AVLTree a -> String;
+toString s := maybe "empty" (Tree.treeToString s) ∘ toTree;
+
+avlShowing : {a : Type} -> Show a -> Show (AVLTree a);
+avlShowing := show ∘ toString;
+
+--- Test for size and balance.
+mkTests : String × Nat × AVLTree Nat -> List Test;
+mkTests (title, len, s) :=
+  let
+    mkTitle : String -> String;
+    mkTitle m := title ++str " " ++str m;
+    sizeMsg : String := "sizes do not match";
+    balanceMsg : String := "not balanced";
+  in testCase
+      (mkTitle "size")
+      (assertEqual Eq.nat sizeMsg (size s) len)
+    :: testCase
+      (mkTitle "balanced")
+      (assertTrue balanceMsg (isBalanced s))
+    :: nil;
+
+TestDescr : Type;
+TestDescr := String × Nat × AVLTree Nat;
+
+s1 : TestDescr;
+s1 :=
+  "s1"
+    , 5
+    , fromList Ord.nat (1 :: 2 :: 8 :: 3 :: 3 :: 2 :: 9 :: nil);
+
+s2 : TestDescr;
+s2 :=
+  "s2"
+    , 6
+    , fromList Ord.nat (1 :: 3 :: 0 :: 4 :: 4 :: 8 :: 2 :: nil);
+
+s2-delete : TestDescr;
+s2-delete :=
+  case s2
+    | t, l, s :=
+      t ++str "-delete"
+        , sub l 2
+        , deleteMany Ord.nat (1 :: 8 :: nil) s;
+
+s3 : TestDescr;
+s3 :=
+  "s3"
+    , 6
+    , fromList Ord.nat (5 :: 4 :: 3 :: 2 :: 1 :: 0 :: nil);
+
+s4 : TestDescr;
+s4 :=
+  "s4", 5, fromList Ord.nat (1 :: 2 :: 3 :: 4 :: 5 :: nil);
+
+tests : List Test;
+tests :=
+  concatMap
+    mkTests
+    (s1 :: s2 :: s3 :: s4 :: s2-delete :: nil);
+
+main : IO;
+main :=
+  printStringLn (toString Show.nat (snd (snd s1)))
+    >> printStringLn (toStringDebug Show.nat (snd (snd s1)))
+    >> runTestSuite (testSuite "AVL Set" tests);

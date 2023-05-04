@@ -7,7 +7,7 @@ open Ord using {Ord;ord};
 
 import Stdlib.Data.Nat.Ord as Nat;
 import Data.Set as Set;
-import Data.Tree as Tree;
+import Data.BinaryTree as Tree;
 import Stdlib.Data.Ord as Ord;
 import Data.Eq as Eq;
 
