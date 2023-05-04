@@ -250,6 +250,13 @@ pretty s := maybe "empty" (Tree.treeToString s) ∘ toTree;
 
 module AVLTraits;
 
+  -- Workaround for https://github.com/anoma/juvix/issues/2039
+  -- TODO: Remove when issue is fixed
+  toList' : {a : Type} -> AVLTree a -> List a;
+  toList' empty := nil;
+  toList' (node x _ l r) :=
+  toList' l ++ (x :: nil) ++ toList' r;
+
   Eq : {a : Type} -> Eq a -> Eq (AVLTree a);
   Eq {a} e :=
     let
@@ -257,7 +264,7 @@ module AVLTraits;
       eqList :=
         case ListTraits.Eq e
           | mkEq f := f;
-    in mkEq (eqList on toList);
+    in mkEq (eqList on toList');
 
   Ord : {a : Type} -> Ord a -> Ord (AVLTree a);
   Ord {a} o :=
@@ -266,6 +273,6 @@ module AVLTraits;
       ordList :=
         case ListTraits.Ord o
           | mkOrd f := f;
-    in mkOrd (ordList on toList);
+    in mkOrd (ordList on toList');
 
 end;
