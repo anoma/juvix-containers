@@ -2,14 +2,9 @@ module Data.Map;
 
 open import Stdlib.Prelude hiding {length};
 
-import Data.Ord as Ord;
-open Ord using {Ord;ord};
-
 import Stdlib.Data.Nat.Ord as Nat;
 import Data.Set as Set;
 import Data.BinaryTree as Tree;
-import Stdlib.Data.Ord as Ord;
-import Data.Eq as Eq;
 
 open import Test.JuvixUnit;
 
@@ -27,8 +22,8 @@ to-pair (binding a b) := a, b;
 
 binding-key-ordering :
   {A B : Type} -> Ord A -> Ord (Binding A B);
-binding-key-ordering (ord cmp) :=
-  ord
+binding-key-ordering (mkOrd cmp) :=
+  mkOrd
     λ {
       | b1 b2 := cmp (key b1) (key b2)
     };
@@ -51,7 +46,7 @@ bind-with :
     -> B
     -> FiniteMap A B
     -> FiniteMap A B;
-bind-with {A} {B} f k v (finiteMap o@(ord cmp) (Set.unbalancedSet _ t)) :=
+bind-with {A} {B} f k v (finiteMap o@(mkOrd cmp) (Set.unbalancedSet _ t)) :=
   let
     go :
         Tree.BinaryTree (Binding A B)
@@ -62,9 +57,9 @@ bind-with {A} {B} f k v (finiteMap o@(ord cmp) (Set.unbalancedSet _ t)) :=
         mergeBinding : Binding A B;
         mergeBinding := binding (key b) (f (value b) v);
       in case cmp k (key b)
-        | Ord.EQ := Tree.node l mergeBinding r
-        | Ord.LT := Tree.node (go l) b r
-        | Ord.GT := Tree.node l b (go r);
+        | EQ := Tree.node l mergeBinding r
+        | LT := Tree.node (go l) b r
+        | GT := Tree.node l b (go r);
   in finiteMap
     o
     (Set.unbalancedSet (binding-key-ordering o) (go t));
@@ -78,15 +73,15 @@ bind :=
     };
 
 lookup : {A B : Type} -> A -> FiniteMap A B -> Maybe B;
-lookup {A} {B} k (finiteMap (ord cmp) (Set.unbalancedSet _ t)) :=
+lookup {A} {B} k (finiteMap (mkOrd cmp) (Set.unbalancedSet _ t)) :=
   let
     go : Tree.BinaryTree (Binding A B) -> Maybe B;
     go Tree.leaf := nothing;
     go (Tree.node l b r) :=
       case cmp k (key b)
-        | Ord.EQ := just (value b)
-        | Ord.LT := go l
-        | Ord.GT := go r;
+        | EQ := just (value b)
+        | LT := go l
+        | GT := go r;
   in go t;
 
 from-list-with :
@@ -107,4 +102,3 @@ to-list (finiteMap _ s) := map to-pair (Set.to-list s);
 
 length : {A B : Type} -> FiniteMap A B -> Nat;
 length (finiteMap _ uset) := Set.length uset;
-

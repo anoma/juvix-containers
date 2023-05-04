@@ -6,11 +6,6 @@ open import Test.JuvixUnit;
 import Data.Set as Set;
 open Set using {UnbalancedSet;Set};
 
-import Data.Ord as Ord;
-open Ord using {Ord;ord};
-
-import Data.Eq as Eq;
-
 tests : List Test;
 tests :=
   let
@@ -20,30 +15,19 @@ tests :=
         1
         (Set.insert
           3
-          (Set.insert 2 (Set.insert 1 (Set.empty Ord.nat))));
+          (Set.insert 2 (Set.insert 1 (Set.empty NatTraits.Ord))));
     setInSet : Set (Set Nat);
     setInSet :=
-      Set.insert s (Set.empty (Set.set-ordering Ord.nat));
-    terminating
-    quickSort : {A : Type} → Ord A → List A → List A;
-    quickSort _ nil := nil;
-    quickSort _ (x :: nil) := x :: nil;
-    quickSort {A} o (x :: xs) :=
-      let
-        qsHelper : A → List A × List A → List A;
-        qsHelper a (l, r) := l ++ (a :: nil) ++ r;
-        isGT : A -> Bool;
-        isGT := Ord.gt o x;
-      in qsHelper x (both (quickSort o) (partition isGT xs));
+      Set.insert s (Set.empty (Set.set-ordering NatTraits.Ord));
   in testCase
       "Set.length computes the expected size"
-      (assertEqual Eq.nat "unexpected size" (Set.length s) 3)
+      (assertEqual NatTraits.Eq "unexpected size" (Set.length s) 3)
     :: testCase
       "Set.to-list computes the expected members"
       (assertEqual
-        (Eq.list Eq.nat)
+        (ListTraits.Eq NatTraits.Eq)
         "unexpected memebrs"
-        (quickSort Ord.nat (Set.to-list s))
+        (quickSort NatTraits.Ord (Set.to-list s))
         (1 :: 2 :: 3 :: nil))
     :: testCase
       "Set.member? computes true for expected member"
@@ -58,7 +42,7 @@ tests :=
     :: testCase
       "setInSet has length 1"
       (assertEqual
-        Eq.nat
+        NatTraits.Eq
         "unexpected size"
         (Set.length setInSet)
         1)

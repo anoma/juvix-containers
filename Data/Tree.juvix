@@ -2,8 +2,6 @@
 module Data.Tree;
 
 open import Stdlib.Prelude;
-open import Data.Show;
-open import Data.Tmp;
 
 --- A ;List; of trees.
 Forest : Type -> Type;
@@ -25,7 +23,7 @@ draw : {A : Type} -> Show A -> Tree A -> List String;
 drawForest :
   {A : Type} -> Show A -> Forest A -> List String;
 
-draw {A} s@(show fshow) (node v cs) :=
+draw {A} s@(mkShow fshow) (node v cs) :=
   let
     go : Tree A -> List String;
     go := draw s;

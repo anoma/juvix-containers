@@ -1,7 +1,6 @@
 module Data.BinaryTree;
 
 open import Stdlib.Prelude hiding {length};
-open import Data.Show;
 
 type BinaryTree (A : Type) :=
   | leaf : BinaryTree A
