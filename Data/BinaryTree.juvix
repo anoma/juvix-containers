@@ -16,8 +16,11 @@ fold :
 fold {A} {B} f acc :=
   let
     go : B -> BinaryTree A -> B;
-    go acc leaf := acc;
-    go acc (node l a r) := f a (go acc l) (go acc r);
+    go acc :=
+      λ {
+        | lead := acc
+        | (node l a r) := f a (go acc l) (go acc r)
+      };
   in go acc;
 
 length : {A : Type} -> BinaryTree A -> Nat;
@@ -28,8 +31,8 @@ length :=
     }
     0;
 
-to-list : {A : Type} -> BinaryTree A -> List A;
-to-list :=
+toList : {A : Type} -> BinaryTree A -> List A;
+toList :=
   fold
     λ {
       | e ls rs := e :: ls ++ rs
