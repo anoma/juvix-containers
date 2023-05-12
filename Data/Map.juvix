@@ -79,6 +79,14 @@ fromListWith o f :=
     }
     empty;
 
+fromList : {A B : Type} -> Ord A -> List (A × B) -> Map A B;
+fromList o :=
+  fromListWith
+    o
+    λ {
+      | old new := new
+    };
+
 toList : {A B : Type} -> Map A B -> List (A × B);
 toList (mkMap s) := map toPair (Set.toList s);
 
