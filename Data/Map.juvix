@@ -66,13 +66,13 @@ lookup : {A B : Type} -> Ord A -> A -> Map A B -> Maybe B;
 lookup {A} {B} o k (mkMap s) :=
   mapMaybe value (Set.lookupWith o key k s);
 
-from-list-with :
+fromListWith :
   {A B : Type}
     -> Ord A
     -> (B -> B -> B)
     -> List (A × B)
     -> Map A B;
-from-list-with o f :=
+fromListWith o f :=
   foldl
     λ {
       | m (k, v) := insertWith o f k v m
