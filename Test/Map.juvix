@@ -1,7 +1,7 @@
 module Test.Map;
 
-open import Stdlib.Prelude;
-open import Test.JuvixUnit;
+import Stdlib.Prelude open;
+import Test.JuvixUnit open;
 
 import Data.Map as Map;
 open Map using {Map};
@@ -11,16 +11,27 @@ tests :=
   let
     m : Map Nat String;
     m :=
-      Map.insert NatTraits.Ord 2 "two" (Map.insert NatTraits.Ord 1 "one" Map.empty);
+      Map.insert
+        NatTraits.Ord
+        2
+        "two"
+        (Map.insert NatTraits.Ord 1 "one" Map.empty);
     m2 : Map Nat Nat;
-    m2 := Map.insert NatTraits.Ord 3 4 (Map.insert NatTraits.Ord 1 2 Map.empty);
+    m2 :=
+      Map.insert
+        NatTraits.Ord
+        3
+        4
+        (Map.insert NatTraits.Ord 1 2 Map.empty);
     assertEqListPair :
         List (Nat × Nat) -> List (Nat × Nat) -> Assertion;
     assertEqListPair actual expected :=
       assertEqual
         (ListTraits.Eq (ProductTraits.Eq NatTraits.Eq NatTraits.Eq))
         "lists are not equal"
-        (quickSort (ProductTraits.Ord NatTraits.Ord NatTraits.Ord) actual)
+        (quickSort
+          (ProductTraits.Ord NatTraits.Ord NatTraits.Ord)
+          actual)
         expected;
   in testCase
       "Map.lookup missing key"
@@ -29,15 +40,19 @@ tests :=
         (Map.lookup NatTraits.Ord 10 m))
     :: testCase
       "Map.lookup available key"
-      (assertJust "could not find expected key" (Map.lookup NatTraits.Ord 2 m))
+      (assertJust
+        "could not find expected key"
+        (Map.lookup NatTraits.Ord 2 m))
     :: testCase
       "Map.length computes the number of keys in the map"
-      (assertEqual NatTraits.Eq "expected length 2" (Map.size m) 2)
+      (assertEqual
+        NatTraits.Eq
+        "expected length 2"
+        (Map.size m)
+        2)
     :: testCase
       "Map.toList computes the expected members"
-      (assertEqListPair
-        (Map.toList m2)
-        ((1, 2) :: (3, 4) :: nil))
+      (assertEqListPair (Map.toList m2) ((1, 2) :: (3, 4) :: nil))
     :: testCase
       "Map.insert-with replaces duplicates using merge function"
       (assertEqListPair
@@ -60,12 +75,14 @@ tests :=
     :: testCase
       "Map.fromList overwrites duplicates"
       (assertEqListPair
-        (Map.toList (Map.fromList NatTraits.Ord ((1, 1) :: (1, 2) :: nil)))
+        (Map.toList
+          (Map.fromList NatTraits.Ord ((1, 1) :: (1, 2) :: nil)))
         ((1, 2) :: nil))
     :: testCase
       "Map.fromList distinct keys"
       (assertEqListPair
-        (Map.toList (Map.fromList NatTraits.Ord ((1, 1) :: (2, 2) :: nil)))
+        (Map.toList
+          (Map.fromList NatTraits.Ord ((1, 1) :: (2, 2) :: nil)))
         ((1, 1) :: (2, 2) :: nil))
     :: nil;
 

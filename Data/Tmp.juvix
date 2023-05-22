@@ -1,7 +1,7 @@
 --- the functions here should be eventually put in the stdlib
 module Data.Tmp;
 
-open import Stdlib.Prelude;
+import Stdlib.Prelude open;
 
 printNatListLn : List Nat → IO;
 printNatListLn nil := printStringLn "nil";

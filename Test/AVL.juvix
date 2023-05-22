@@ -1,8 +1,8 @@
 module Test.AVL;
 
-open import Test.JuvixUnit;
-open import Data.Set.AVL;
-open import Stdlib.Prelude;
+import Test.JuvixUnit open;
+import Data.Set.AVL open;
+import Stdlib.Prelude open;
 
 --- Test for size and balance.
 mkTests : String × Nat × AVLTree Nat -> List Test;
@@ -27,13 +27,17 @@ s1 : TestDescr;
 s1 :=
   "s1"
     , 5
-    , fromList NatTraits.Ord (1 :: 2 :: 8 :: 3 :: 3 :: 2 :: 9 :: nil);
+    , fromList
+      NatTraits.Ord
+      (1 :: 2 :: 8 :: 3 :: 3 :: 2 :: 9 :: nil);
 
 s2 : TestDescr;
 s2 :=
   "s2"
     , 6
-    , fromList NatTraits.Ord (1 :: 3 :: 0 :: 4 :: 4 :: 8 :: 2 :: nil);
+    , fromList
+      NatTraits.Ord
+      (1 :: 3 :: 0 :: 4 :: 4 :: 8 :: 2 :: nil);
 
 s2-delete : TestDescr;
 s2-delete :=
@@ -47,11 +51,15 @@ s3 : TestDescr;
 s3 :=
   "s3"
     , 6
-    , fromList NatTraits.Ord (5 :: 4 :: 3 :: 2 :: 1 :: 0 :: nil);
+    , fromList
+      NatTraits.Ord
+      (5 :: 4 :: 3 :: 2 :: 1 :: 0 :: nil);
 
 s4 : TestDescr;
 s4 :=
-  "s4", 5, fromList NatTraits.Ord (1 :: 2 :: 3 :: 4 :: 5 :: nil);
+  "s4"
+    , 5
+    , fromList NatTraits.Ord (1 :: 2 :: 3 :: 4 :: 5 :: nil);
 
 tests : List Test;
 tests :=

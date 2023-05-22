@@ -1,7 +1,7 @@
 --- N-Ary trees with pretty printing.
 module Data.Tree;
 
-open import Stdlib.Prelude;
+import Stdlib.Prelude open;
 
 --- A ;List; of trees.
 Forest : Type -> Type;
@@ -13,8 +13,7 @@ type Tree (A : Type) :=
 
 Forest A := List (Tree A);
 
-shift :
-  String -> String -> List String -> List String;
+shift : String -> String -> List String -> List String;
 shift first other xs :=
   zipWith (++str) (first :: replicate (length xs) other) xs;
 

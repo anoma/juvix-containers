@@ -1,6 +1,6 @@
 module Data.BinaryTree;
 
-open import Stdlib.Prelude hiding {length};
+import Stdlib.Prelude open hiding {length};
 
 type BinaryTree (A : Type) :=
   | leaf : BinaryTree A
@@ -21,17 +21,7 @@ fold {A} {B} f acc :=
   in go acc;
 
 length : {A : Type} -> BinaryTree A -> Nat;
-length :=
-  fold
-    λ {
-      | _ l r := 1 + l + r
-    }
-    0;
+length := fold λ {_ l r := 1 + l + r} 0;
 
 to-list : {A : Type} -> BinaryTree A -> List A;
-to-list :=
-  fold
-    λ {
-      | e ls rs := e :: ls ++ rs
-    }
-    nil;
+to-list := fold λ {e ls rs := e :: ls ++ rs} nil;

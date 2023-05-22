@@ -1,13 +1,13 @@
 module Data.UnbalancedSet;
 
-open import Stdlib.Prelude hiding {length};
+import Stdlib.Prelude open hiding {length};
 
-open import Test.JuvixUnit;
+import Test.JuvixUnit open;
 
 import Stdlib.Trait.Ord as Ord;
 
 import Data.BinaryTree as Tree;
-open Tree using {BinaryTree;binaryTree;leaf;node};
+open Tree using {BinaryTree; leaf; node};
 
 type UnbalancedSet (A : Type) :=
   | unbalancedSet : Ord A
@@ -26,7 +26,7 @@ member? {A} x (unbalancedSet o@(mkOrd cmp) t) :=
       case cmp x y
         | Ord.LT := go l
         | Ord.GT := go r
-        | Ord.EQ := true
+        | Ord.EQ := true;
   in go t;
 
 insert :
@@ -53,8 +53,5 @@ set-ordering {A} o :=
   let
     from-ord-list : Ord (List A) -> Ord (UnbalancedSet A);
     from-ord-list (mkOrd cmp) :=
-      mkOrd
-        λ {
-          | s1 s2 := cmp (to-list s1) (to-list s2)
-        };
+      mkOrd λ {s1 s2 := cmp (to-list s1) (to-list s2)};
   in from-ord-list (ListTraits.Ord o);

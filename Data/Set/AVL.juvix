@@ -8,14 +8,14 @@
 --- constructing, modifying, and querying AVL trees.
 module Data.Set.AVL;
 
-open import Stdlib.Prelude;
-open import Data.Tmp;
+import Stdlib.Prelude open;
+import Data.Tmp open;
 
 import Stdlib.Data.Int as Int;
 import Stdlib.Data.Int.Ord as Int;
 
 import Data.Tree as Tree;
-open Tree using {Tree;Forest};
+open Tree using {Tree; Forest};
 
 import Stdlib.Data.Nat.Ord as Nat;
 open Nat;
@@ -185,13 +185,7 @@ lookupMax (node _ _ _ r) := lookupMax r;
 --- 𝒪(𝒹 log 𝓃). Deletes d elements from an ;AVLTree;.
 deleteMany :
   {a : Type} -> Ord a -> List a -> AVLTree a -> AVLTree a;
-deleteMany o d t :=
-  foldl
-    λ {
-      | acc x := delete o x acc
-    }
-    t
-    d;
+deleteMany o d t := foldl λ {acc x := delete o x acc} t d;
 
 --- 𝒪(𝓃). Checks the ;AVLTree; height invariant. I.e. that
 --- every two children do not differ on height by more than 1.
@@ -202,12 +196,7 @@ isBalanced n@(node _ _ l r) :=
 
 --- 𝒪(𝓃 log 𝓃). Create an ;AVLTree; from an unsorted ;List;.
 fromList : {a : Type} -> Ord a -> List a -> AVLTree a;
-fromList o :=
-  foldl
-    λ {
-      | acc x := insert o x acc
-    }
-    empty;
+fromList o := foldl λ {acc x := insert o x acc} empty;
 
 --- 𝒪(𝓃). Returns the number of elements of an ;AVLTree;.
 size : {a : Type} -> AVLTree a -> Nat;
@@ -249,14 +238,6 @@ pretty : {a : Type} -> Show a -> AVLTree a -> String;
 pretty s := maybe "empty" (Tree.treeToString s) ∘ toTree;
 
 module AVLTraits;
-
-  -- Workaround for https://github.com/anoma/juvix/issues/2039
-  -- TODO: Remove when issue is fixed
-  toList' : {a : Type} -> AVLTree a -> List a;
-  toList' empty := nil;
-  toList' (node x _ l r) :=
-  toList' l ++ (x :: nil) ++ toList' r;
-
   Eq : {a : Type} -> Eq a -> Eq (AVLTree a);
   Eq {a} e :=
     let
@@ -264,7 +245,7 @@ module AVLTraits;
       eqList :=
         case ListTraits.Eq e
           | mkEq f := f;
-    in mkEq (eqList on toList');
+    in mkEq (eqList on toList);
 
   Ord : {a : Type} -> Ord a -> Ord (AVLTree a);
   Ord {a} o :=
@@ -273,6 +254,5 @@ module AVLTraits;
       ordList :=
         case ListTraits.Ord o
           | mkOrd f := f;
-    in mkOrd (ordList on toList');
-
+    in mkOrd (ordList on toList);
 end;

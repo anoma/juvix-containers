@@ -1,7 +1,7 @@
 module Test.UnbalancedSet;
 
-open import Stdlib.Prelude;
-open import Test.JuvixUnit;
+import Stdlib.Prelude open;
+import Test.JuvixUnit open;
 
 import Data.UnbalancedSet as Set;
 open Set using {UnbalancedSet};
@@ -21,7 +21,11 @@ tests :=
       Set.insert s (Set.empty (Set.set-ordering NatTraits.Ord));
   in testCase
       "Set.length computes the expected size"
-      (assertEqual NatTraits.Eq "unexpected size" (Set.length s) 3)
+      (assertEqual
+        NatTraits.Eq
+        "unexpected size"
+        (Set.length s)
+        3)
     :: testCase
       "Set.to-list computes the expected members"
       (assertEqual

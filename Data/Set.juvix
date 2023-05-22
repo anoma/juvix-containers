@@ -1,21 +1,15 @@
 module Data.Set;
 
-open import Stdlib.Prelude;
-open import Data.Set.AVL public;
+import Stdlib.Prelude open;
+import Data.Set.AVL open public;
 
 Set : Type -> Type;
 Set A := AVLTree A;
 
 module SetTraits;
-
-  -- Workaround for https://github.com/anoma/juvix/issues/2039
-  -- TODO: Replace AVLTree with Set when issue is fixed
-  Eq : {A : Type} -> Eq A -> Eq (AVLTree A);
+  Eq : {A : Type} -> Eq A -> Eq (Set A);
   Eq := AVLTraits.Eq;
 
-  -- Workaround for https://github.com/anoma/juvix/issues/2039
-  -- TODO: Replace AVLTree with Set when issue is fixed
-  Ord : {A : Type} -> Ord A -> Ord (AVLTree A);
+  Ord : {A : Type} -> Ord A -> Ord (Set A);
   Ord := AVLTraits.Ord;
-
 end;
