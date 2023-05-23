@@ -1,0 +1,3 @@
+module Data.Queue;
+
+open import Data.Queue.Base public;
