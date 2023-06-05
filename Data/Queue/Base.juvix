@@ -65,7 +65,7 @@ fromList xs := pushMany xs empty;
 --- (i.e. the first element of the ;Queue; is the first element of the ;List;).
 toList : {A : Type} -> Queue A -> List A;
 toList (queue front back) :=
-  reverse (front ++ reverse back);
+  back ++ reverse front;
 
 --- 𝒪(n). Returns the number of elements in the ;Queue;.
 size : {A : Type} -> Queue A -> Nat;
