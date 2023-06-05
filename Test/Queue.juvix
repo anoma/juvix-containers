@@ -1,0 +1,66 @@
+module Test.Queue;
+
+open import Stdlib.Prelude hiding {head;tail};
+open import Stdlib.Data.Nat;
+open import Stdlib.Data.Maybe;
+open import Test.JuvixUnit;
+open import Data.Queue;
+
+q : Queue Nat := empty;
+q1 : Queue Nat := push 1 q;
+q2 : Queue Nat := push 2 q1;
+q3 : Queue Nat := push 3 q2;
+q4 : Queue Nat := push 4 q3;
+
+tests : List Test;
+tests :=
+  let
+    checkWithList : Queue Nat -> List Nat -> Assertion;
+    checkWithList q q' :=
+      assertEqual
+        (QueueTraits.Eq NatTraits.Eq)
+        "Queue should be equal"
+        q
+        (fromList q');
+  in 
+  testCase
+      "Queue.empty should be empty"
+      (checkWithList q nil)
+    :: testCase
+      "Queue.push should add an element"
+      (checkWithList q1 (1 :: nil))
+    :: testCase
+      "Queue.push first element should be first pushed"
+      (checkWithList q2 (2 :: 1 :: nil))
+    :: testCase
+      "Queue.head should return first element"
+      (assertEqual
+        (MaybeTraits.Eq NatTraits.Eq)
+        "head of queue q3"
+        (head q3)
+        (just 1))
+    :: testCase
+      "Queue.fromList composes with toList should be the identity"
+      (assertEqual
+        (QueueTraits.Eq NatTraits.Eq)
+        ("fromList . toList should be the identity")
+        (fromList ∘ toList $ q3)
+        q3)
+    :: testCase
+      "Queue.pop should remove first element"
+      (assertEqual
+        (MaybeTraits.Eq (ProductTraits.Eq (NatTraits.Eq) (QueueTraits.Eq NatTraits.Eq)))
+        "pop of queue q3"
+        (pop q3)
+        (just (1 , fromList (3 :: 2 :: nil) )))
+    :: testCase
+      "Queue.tail should return queue without first element"
+      (assertEqual
+        (MaybeTraits.Eq (QueueTraits.Eq NatTraits.Eq))
+        "tail of queue q3"
+        (tail q3)
+        (just ∘ fromList $ 3 :: 2 :: nil)) 
+    :: nil;
+
+main : IO;
+main := runTestSuite $ testSuite "Queue" tests;
