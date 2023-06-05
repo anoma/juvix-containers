@@ -40,7 +40,7 @@ check : {A : Type} -> Queue A -> Queue A;
 check (queue nil back) := queue (reverse back) nil;
 check q := q;
 
---- 𝒪(1). Removes the first element from the ;Queue;. 
+--- 𝒪(1). Returns the first element and the rest of the ;Queue;. 
 --- If the ;Queue; is empty then returns ;nothing;.
 pop : {A : Type} -> Queue A -> Maybe (A × Queue A);
 pop (queue nil _) := nothing;
