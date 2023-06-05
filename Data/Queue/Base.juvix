@@ -35,7 +35,6 @@ tail (queue nil _) := nothing;
 tail (queue (_ :: front) back) := just (queue front back);
 
 --- 𝒪(n) in the worst-case scenario, but 𝒪(1) amortized 
---- due to infrequentcalls. 
 check : {A : Type} -> Queue A -> Queue A;
 check (queue nil back) := queue (reverse back) nil;
 check q := q;
