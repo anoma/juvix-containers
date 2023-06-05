@@ -185,7 +185,7 @@ lookupMax (node _ _ _ r) := lookupMax r;
 --- 𝒪(𝒹 log 𝓃). Deletes d elements from an ;AVLTree;.
 deleteMany :
   {a : Type} -> Ord a -> List a -> AVLTree a -> AVLTree a;
-deleteMany o d t := foldl λ {acc x := delete o x acc} t d;
+deleteMany o d t := for (acc := t) (x in d) delete o x acc;
 
 --- 𝒪(𝓃). Checks the ;AVLTree; height invariant. I.e. that
 --- every two children do not differ on height by more than 1.
@@ -196,7 +196,7 @@ isBalanced n@(node _ _ l r) :=
 
 --- 𝒪(𝓃 log 𝓃). Create an ;AVLTree; from an unsorted ;List;.
 fromList : {a : Type} -> Ord a -> List a -> AVLTree a;
-fromList o := foldl λ {acc x := insert o x acc} empty;
+fromList o l := for (acc := empty) (x in l)  insert o x acc;
 
 --- 𝒪(𝓃). Returns the number of elements of an ;AVLTree;.
 size : {a : Type} -> AVLTree a -> Nat;

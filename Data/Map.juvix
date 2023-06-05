@@ -64,14 +64,14 @@ fromListWith :
     -> (B -> B -> B)
     -> List (A × B)
     -> Map A B;
-fromListWith o f :=
-  foldl λ {m (k, v) := insertWith o f k v m} empty;
+fromListWith o f xs :=
+  for (acc := empty) (k, v in xs) insertWith o f k v acc;
 
 fromList : {A B : Type} -> Ord A -> List (A × B) -> Map A B;
 fromList o := fromListWith o λ {old new := new};
 
 toList : {A B : Type} -> Map A B -> List (A × B);
-toList (mkMap s) := map toPair (Set.toList s);
+toList (mkMap s) := map (x in Set.toList s) toPair x;
 
 size : {A B : Type} -> Map A B -> Nat;
 size (mkMap s) := Set.size s;
