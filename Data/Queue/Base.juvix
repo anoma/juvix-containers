@@ -11,6 +11,15 @@ module Data.Queue.Base;
 
 open import Stdlib.Prelude;
 
+import Stdlib.Trait.Eq as Eq;
+open Eq using {Eq};
+
+import Stdlib.Trait.Ord as Ord;
+open Ord using {Ord};
+
+import Stdlib.Trait.Show as Show;
+open Show using {Show};
+
 --- A first-in-first-out data structure
 type Queue (A : Type) :=
   | queue : List A -> List A -> Queue A;
@@ -34,12 +43,12 @@ tail : {A : Type} -> Queue A -> Maybe (Queue A);
 tail (queue nil _) := nothing;
 tail (queue (_ :: front) back) := just (queue front back);
 
---- 𝒪(n) in the worst-case scenario, but 𝒪(1) amortized 
+--- 𝒪(n) in the worst-case scenario, but 𝒪(1) amortized
 check : {A : Type} -> Queue A -> Queue A;
 check (queue nil back) := queue (reverse back) nil;
 check q := q;
 
---- 𝒪(1). Returns the first element and the rest of the ;Queue;. 
+--- 𝒪(1). Returns the first element and the rest of the ;Queue;.
 --- If the ;Queue; is empty then returns ;nothing;.
 pop : {A : Type} -> Queue A -> Maybe (A × Queue A);
 pop (queue nil _) := nothing;
@@ -71,8 +80,8 @@ size : {A : Type} -> Queue A -> Nat;
 size (queue front back) := length front + length back;
 
 module QueueTraits;
-  
-  Eq : {A : Type} -> Eq A -> Eq (Queue A);
+
+  Eq : {A : Type} -> Eq.Eq A -> Eq.Eq (Queue A);
   Eq {A} eq-a :=
     let
       list-eq : List A -> List A -> Bool;
@@ -80,15 +89,15 @@ module QueueTraits;
       go : Queue A -> Queue A -> Bool;
       go q1 q2 := list-eq (toList q1) (toList q2);
     in mkEq go;
-  
-  Show : {A : Type} -> Show A -> Show (Queue A);
+
+  Show : {A : Type} -> Show.Show A -> Show.Show (Queue A);
   Show showA :=
     mkShow
       λ {
         | q := show (ListTraits.Show showA) (toList q)
       };
-  
-  Ord : {A : Type} -> Ord A -> Ord (Queue A);
+
+  Ord : {A : Type} -> Ord.Ord A -> Ord.Ord (Queue A);
   Ord {A} ord-A :=
     let
       go : Queue A -> Queue A -> Ordering;

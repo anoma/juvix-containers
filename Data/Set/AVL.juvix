@@ -20,6 +20,13 @@ open Tree using {Tree; Forest};
 import Stdlib.Data.Nat.Ord as Nat;
 open Nat;
 
+import Stdlib.Trait.Eq as Eq;
+open Eq using {Eq};
+
+import Stdlib.Trait.Ord as Ord;
+open Ord using {Ord};
+
+
 --- A self-balancing binary search tree.
 type AVLTree (A : Type) :=
   | --- An empty AVL tree.
@@ -238,7 +245,7 @@ pretty : {a : Type} -> Show a -> AVLTree a -> String;
 pretty s := maybe "empty" (Tree.treeToString s) ∘ toTree;
 
 module AVLTraits;
-  Eq : {a : Type} -> Eq a -> Eq (AVLTree a);
+  Eq : {a : Type} -> Eq.Eq a -> Eq.Eq (AVLTree a);
   Eq {a} e :=
     let
       eqList : List a -> List a -> Bool;
@@ -247,7 +254,7 @@ module AVLTraits;
           | mkEq f := f;
     in mkEq (eqList on toList);
 
-  Ord : {a : Type} -> Ord a -> Ord (AVLTree a);
+  Ord : {a : Type} -> Ord.Ord a -> Ord.Ord (AVLTree a);
   Ord {a} o :=
     let
       ordList : List a -> List a -> Ordering;

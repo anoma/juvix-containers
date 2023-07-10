@@ -6,9 +6,18 @@ import Stdlib.Data.Nat.Ord as Nat;
 import Data.Set as Set;
 open Set using {Set};
 
+import Data.Set.AVL as AVL;
+open AVL using {AVLTree};
+
 import Data.BinaryTree as Tree;
 
 import Data.Tmp open;
+
+import Stdlib.Trait.Eq as Eq;
+open Eq using {Eq};
+
+import Stdlib.Trait.Ord as Ord;
+open Ord using {Ord};
 
 import Test.JuvixUnit open;
 
@@ -30,10 +39,10 @@ bindingKeyOrdering (mkOrd cmp) :=
   mkOrd λ {b1 b2 := cmp (key b1) (key b2)};
 
 type Map (A B : Type) :=
-  | mkMap : Set (Binding A B) -> Map A B;
+  | mkMap : AVLTree (Binding A B) -> Map A B;
 
 empty : {A B : Type} -> Map A B;
-empty := mkMap Set.empty;
+empty := mkMap AVL.empty;
 
 insertWith :
   {A B : Type}
@@ -77,7 +86,7 @@ size : {A B : Type} -> Map A B -> Nat;
 size (mkMap s) := Set.size s;
 
 module MapTraits;
-  Eq : {A B : Type} -> Eq A -> Eq B -> Eq (Map A B);
+  Eq : {A B : Type} -> Eq.Eq A -> Eq.Eq B -> Eq.Eq (Map A B);
   Eq {A} {B} eqA eqB :=
     let
       eqList : List (A × B) -> List (A × B) -> Bool;
@@ -86,7 +95,7 @@ module MapTraits;
           | mkEq f := f;
     in mkEq (eqList on toList);
 
-  Ord : {A B : Type} -> Ord A -> Ord B -> Ord (Map A B);
+  Ord : {A B : Type} -> Ord.Ord A -> Ord.Ord B -> Ord.Ord (Map A B);
   Ord {A} {B} ordA ordB :=
     let
       ordList : List (A × B) -> List (A × B) -> Ordering;

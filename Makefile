@@ -4,7 +4,7 @@ all: test
 deps/stdlib:
 	@mkdir -p deps/
 	@git clone https://github.com/anoma/juvix-stdlib.git deps/stdlib
-	@git -C deps/stdlib checkout e94ea21027ffa63929ab67e12e917b23792b8c57
+	@git -C deps/stdlib checkout 85751d3a7e5edd97a3d12dae197273731a2088cf
 
 deps/test:
 	@mkdir -p deps/

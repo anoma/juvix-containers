@@ -9,7 +9,7 @@ Forest : Type -> Type;
 --- N-Ary tree.
 positive
 type Tree (A : Type) :=
-  | node : A -> Forest A -> Tree A;
+  | node : A -> List (Tree A) -> Tree A;
 
 Forest A := List (Tree A);
 
