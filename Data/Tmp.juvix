@@ -3,19 +3,19 @@ module Data.Tmp;
 
 import Stdlib.Prelude open;
 
-printNatListLn : List Nat → IO;
-printNatListLn nil := printStringLn "nil";
-printNatListLn (x :: xs) :=
-  printNat x >> printString " :: " >> printNatListLn xs;
+printNatListLn : List Nat → IO
+  | nil := printStringLn "nil"
+  | (x :: xs) :=
+    printNat x >> printString " :: " >> printNatListLn xs;
 
-mapMaybe : {A B : Type} -> (A -> B) -> Maybe A -> Maybe B;
-mapMaybe f m :=
-  case m
-    | nothing := nothing
-    | just a := just (f a);
+mapMaybe : {A B : Type} -> (A -> B) -> Maybe A -> Maybe B
+  | f m :=
+    case m
+      | nothing := nothing
+      | just a := just (f a);
 
-isJust : {A : Type} -> Maybe A -> Bool;
-isJust m :=
-  case m
-    | nothing := false
-    | just _ := true;
+isJust : {A : Type} -> Maybe A -> Bool
+  | m :=
+    case m
+      | nothing := false
+      | just _ := true;

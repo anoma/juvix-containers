@@ -9,13 +9,13 @@ open Eq using {Eq};
 import Stdlib.Trait.Ord as Ord;
 open Ord using {Ord};
 
-Set : Type -> Type;
-Set A := AVLTree A;
+Set : Type -> Type
+  | A := AVLTree A;
 
 module SetTraits;
-  Eq : {A : Type} -> Eq.Eq A -> Eq.Eq (Set A);
-  Eq := AVLTraits.Eq;
+  Eq : {A : Type} -> Eq.Eq A -> Eq.Eq (Set A) :=
+    AVLTraits.Eq;
 
-  Ord : {A : Type} -> Ord.Ord A -> Ord.Ord (Set A);
-  Ord := AVLTraits.Ord;
+  Ord : {A : Type} -> Ord.Ord A -> Ord.Ord (Set A) :=
+    AVLTraits.Ord;
 end;

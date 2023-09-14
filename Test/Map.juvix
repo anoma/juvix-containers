@@ -6,8 +6,7 @@ import Test.JuvixUnit open;
 import Data.Map as Map;
 open Map using {Map};
 
-tests : List Test;
-tests :=
+tests : List Test :=
   let
     m : Map Nat String;
     m :=
@@ -24,7 +23,7 @@ tests :=
         4
         (Map.insert NatTraits.Ord 1 2 Map.empty);
     assertEqListPair :
-        List (Nat × Nat) -> List (Nat × Nat) -> Assertion;
+      List (Nat × Nat) -> List (Nat × Nat) -> Assertion;
     assertEqListPair actual expected :=
       assertEqual
         (ListTraits.Eq (ProductTraits.Eq NatTraits.Eq NatTraits.Eq))
@@ -86,5 +85,4 @@ tests :=
         ((1, 1) :: (2, 2) :: nil))
     :: nil;
 
-main : IO;
-main := runTestSuite (testSuite "Map" tests);
+main : IO := runTestSuite (testSuite "Map" tests);

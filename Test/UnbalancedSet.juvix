@@ -6,8 +6,7 @@ import Test.JuvixUnit open;
 import Data.UnbalancedSet as Set;
 open Set using {UnbalancedSet};
 
-tests : List Test;
-tests :=
+tests : List Test :=
   let
     s : UnbalancedSet Nat;
     s :=
@@ -52,5 +51,4 @@ tests :=
         1)
     :: nil;
 
-main : IO;
-main := runTestSuite (testSuite "Set" tests);
+main : IO := runTestSuite (testSuite "Set" tests);

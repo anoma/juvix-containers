@@ -26,7 +26,6 @@ open Eq using {Eq};
 import Stdlib.Trait.Ord as Ord;
 open Ord using {Ord};
 
-
 --- A self-balancing binary search tree.
 type AVLTree (A : Type) :=
   | --- An empty AVL tree.
@@ -36,9 +35,9 @@ type AVLTree (A : Type) :=
 
 --- 𝒪(1) Retrieves the height of an ;AVLTree;. The height is the distance from
 --- the root to the deepest child.
-height : {A : Type} -> AVLTree A -> Nat;
-height empty := 0;
-height (node _ h _ _) := h;
+height : {A : Type} -> AVLTree A -> Nat
+  | empty := 0
+  | (node _ h _ _) := h;
 
 type BalanceFactor :=
   | --- Left children is higher.
@@ -48,218 +47,216 @@ type BalanceFactor :=
   | --- Right children is higher.
     LeanRight : BalanceFactor;
 
-diffFactor : {A : Type} -> AVLTree A -> Int;
-diffFactor empty := 0;
-diffFactor (node _ _ left right) :=
-  Int.intSubNat (height right) (height left);
+diffFactor : {A : Type} -> AVLTree A -> Int
+  | empty := 0
+  | (node _ _ left right) :=
+    Int.intSubNat (height right) (height left);
 
 --- 𝒪(1). Computes the balance factor, i.e., the height of the right subtree
 --- minus the height of the left subtree.
-balanceFactor : {A : Type} -> AVLTree A -> BalanceFactor;
-balanceFactor n :=
-  let
-    diff : Int := diffFactor n;
-  in if
-    (0 Int.< diff)
-    LeanRight
-    (if (diff Int.< 0) LeanLeft LeanNone);
+balanceFactor : {A : Type} -> AVLTree A -> BalanceFactor
+  | n :=
+    let
+      diff : Int := diffFactor n;
+    in if
+      (0 Int.< diff)
+      LeanRight
+      (if (diff Int.< 0) LeanLeft LeanNone);
 
 --- 𝒪(1). Helper function for creating a node.
-mknode :
-  {A : Type} -> A -> AVLTree A -> AVLTree A -> AVLTree A;
-mknode val l r :=
-  node val (1 + max (height l) (height r)) l r;
+mknode
+  : {A : Type} -> A -> AVLTree A -> AVLTree A -> AVLTree A
+  | val l r := node val (1 + max (height l) (height r)) l r;
 
 --- 𝒪(1). Left rotation.
-rotateLeft : {A : Type} -> AVLTree A -> AVLTree A;
-rotateLeft (node x _ a (node z _ b c)) :=
-  mknode z (mknode x a b) c;
-rotateLeft n := n;
+rotateLeft : {A : Type} -> AVLTree A -> AVLTree A
+  | (node x _ a (node z _ b c)) := mknode z (mknode x a b) c
+  | n := n;
 
 --- 𝒪(1). Right rotation.
-rotateRight : {A : Type} -> AVLTree A -> AVLTree A;
-rotateRight (node z _ (node y _ x t3) t4) :=
-  mknode y x (mknode z t3 t4);
-rotateRight n := n;
+rotateRight : {A : Type} -> AVLTree A -> AVLTree A
+  | (node z _ (node y _ x t3) t4) :=
+    mknode y x (mknode z t3 t4)
+  | n := n;
 
 --- 𝒪(1). Applies local rotations if needed.
-balance : {a : Type} -> AVLTree a -> AVLTree a;
-balance empty := empty;
-balance n@(node x h l r) :=
-  let
-    factor : BalanceFactor := balanceFactor n;
-  in case factor
-    | LeanRight :=
-      (case balanceFactor r
-        | LeanLeft := rotateLeft (mknode x l (rotateRight r))
-        | _ := rotateLeft n)
-    | LeanLeft :=
-      (case balanceFactor l
-        | LeanRight := rotateRight (mknode x (rotateLeft l) r)
-        | _ := rotateRight n)
-    | LeanNone := n;
+balance : {a : Type} -> AVLTree a -> AVLTree a
+  | empty := empty
+  | n@(node x h l r) :=
+    let
+      factor : BalanceFactor := balanceFactor n;
+    in case factor
+      | LeanRight :=
+        (case balanceFactor r
+          | LeanLeft := rotateLeft (mknode x l (rotateRight r))
+          | _ := rotateLeft n)
+      | LeanLeft :=
+        (case balanceFactor l
+          | LeanRight := rotateRight (mknode x (rotateLeft l) r)
+          | _ := rotateRight n)
+      | LeanNone := n;
 
 --- 𝒪(log 𝓃). Lookup a member from the ;AVLTree; using a projection function.
 --- Ord a, Ord k and f must be compatible. i.e cmp_k (f a1) (f a2) == cmp_a a1 a2
-lookupWith :
-  {a k : Type}
+lookupWith
+  : {a k : Type}
     -> Ord k
     -> (a -> k)
     -> k
     -> AVLTree a
-    -> Maybe a;
-lookupWith {a} (mkOrd cmp) f x :=
-  let
-    go : AVLTree a -> Maybe a;
-    go empty := nothing;
-    go m@(node y h l r) :=
-      case cmp x (f y)
-        | LT := go l
-        | GT := go r
-        | EQ := just y;
-  in go;
+    -> Maybe a
+  | {a} (mkOrd cmp) f x :=
+    let
+      go : AVLTree a -> Maybe a;
+      go empty := nothing;
+      go m@(node y h l r) :=
+        case cmp x (f y)
+          | LT := go l
+          | GT := go r
+          | EQ := just y;
+    in go;
 
 --- 𝒪(log 𝓃). Queries whether an element is in an ;AVLTree;.
-member? : {a : Type} -> Ord a -> a -> AVLTree a -> Bool;
-member? {a} o x := isJust ∘ lookupWith o id x;
+member? : {a : Type} -> Ord a -> a -> AVLTree a -> Bool
+  | {a} o x := isJust ∘ lookupWith o id x;
 
 --- 𝒪(log 𝓃). Inserts an element into and ;AVLTree; using a function to
 --- deduplicate entries.
 ---
 --- Assumption: Given a1 == a2 then f a1 a2 == a1 == a2
 --- where == comes from Ord a.
-insertWith :
-  {a : Type}
+insertWith
+  : {a : Type}
     -> Ord a
     -> (a -> a -> a)
     -> a
     -> AVLTree a
-    -> AVLTree a;
-insertWith {a} (mkOrd cmp) f x :=
-  let
-    go : AVLTree a -> AVLTree a;
-    go empty := mknode x empty empty;
-    go m@(node y h l r) :=
-      case cmp x y
-        | LT := balance (mknode y (go l) r)
-        | GT := balance (mknode y l (go r))
-        | EQ := node (f y x) h l r;
-  in go;
+    -> AVLTree a
+  | {a} (mkOrd cmp) f x :=
+    let
+      go : AVLTree a -> AVLTree a;
+      go empty := mknode x empty empty;
+      go m@(node y h l r) :=
+        case cmp x y
+          | LT := balance (mknode y (go l) r)
+          | GT := balance (mknode y l (go r))
+          | EQ := node (f y x) h l r;
+    in go;
 
 --- 𝒪(log 𝓃). Inserts an element into and ;AVLTree;.
-insert : {a : Type} -> Ord a -> a -> AVLTree a -> AVLTree a;
-insert {a} o := insertWith o (flip const);
+insert : {a : Type} -> Ord a -> a -> AVLTree a -> AVLTree a
+  | {a} o := insertWith o (flip const);
 
 --- 𝒪(log 𝓃). Removes an element from an ;AVLTree;.
-delete : {a : Type} -> Ord a -> a -> AVLTree a -> AVLTree a;
-delete {a} (mkOrd cmp) x :=
-  let
-    deleteMin : AVLTree a -> Maybe (a × AVLTree a);
-    deleteMin empty := nothing;
-    deleteMin (node v _ l r) :=
-      case deleteMin l
-        | nothing := just (v, r)
-        | just (m, l') := just (m, mknode v l' r);
-    go : AVLTree a -> AVLTree a;
-    go empty := empty;
-    go (node y h l r) :=
-      case cmp x y
-        | LT := balance (mknode y (go l) r)
-        | GT := balance (mknode y l (go r))
-        | EQ :=
-          case l
-            | empty := r
-            | _ :=
-              case deleteMin r
-                | nothing := l
-                | just (minRight, r') := balance (mknode minRight l r');
-  in go;
+delete : {a : Type} -> Ord a -> a -> AVLTree a -> AVLTree a
+  | {a} (mkOrd cmp) x :=
+    let
+      deleteMin : AVLTree a -> Maybe (a × AVLTree a);
+      deleteMin empty := nothing;
+      deleteMin (node v _ l r) :=
+        case deleteMin l
+          | nothing := just (v, r)
+          | just (m, l') := just (m, mknode v l' r);
+      go : AVLTree a -> AVLTree a;
+      go empty := empty;
+      go (node y h l r) :=
+        case cmp x y
+          | LT := balance (mknode y (go l) r)
+          | GT := balance (mknode y l (go r))
+          | EQ :=
+            case l
+              | empty := r
+              | _ :=
+                case deleteMin r
+                  | nothing := l
+                  | just (minRight, r') := balance (mknode minRight l r');
+    in go;
 
 --- 𝒪(log 𝓃). Returns the minimum element of the ;AVLTree;.
-lookupMin : {a : Type} -> AVLTree a -> Maybe a;
-lookupMin empty := nothing;
-lookupMin (node y _ empty empty) := just y;
-lookupMin (node _ _ empty r) := lookupMin r;
-lookupMin (node _ _ l _) := lookupMin l;
+lookupMin : {a : Type} -> AVLTree a -> Maybe a
+  | empty := nothing
+  | (node y _ empty empty) := just y
+  | (node _ _ empty r) := lookupMin r
+  | (node _ _ l _) := lookupMin l;
 
 --- 𝒪(log 𝓃). Returns the maximum element of the ;AVLTree;.
-lookupMax : {a : Type} -> AVLTree a -> Maybe a;
-lookupMax empty := nothing;
-lookupMax (node y _ empty empty) := just y;
-lookupMax (node _ _ l empty) := lookupMax l;
-lookupMax (node _ _ _ r) := lookupMax r;
+lookupMax : {a : Type} -> AVLTree a -> Maybe a
+  | empty := nothing
+  | (node y _ empty empty) := just y
+  | (node _ _ l empty) := lookupMax l
+  | (node _ _ _ r) := lookupMax r;
 
 --- 𝒪(𝒹 log 𝓃). Deletes d elements from an ;AVLTree;.
-deleteMany :
-  {a : Type} -> Ord a -> List a -> AVLTree a -> AVLTree a;
-deleteMany o d t := for (acc := t) (x in d) delete o x acc;
+deleteMany
+  : {a : Type} -> Ord a -> List a -> AVLTree a -> AVLTree a
+  | o d t := for (acc := t) (x in d) delete o x acc;
 
 --- 𝒪(𝓃). Checks the ;AVLTree; height invariant. I.e. that
 --- every two children do not differ on height by more than 1.
-isBalanced : {a : Type} -> AVLTree a -> Bool;
-isBalanced empty := true;
-isBalanced n@(node _ _ l r) :=
-  isBalanced l && isBalanced r && abs (diffFactor n) <= 1;
+isBalanced : {a : Type} -> AVLTree a -> Bool
+  | empty := true
+  | n@(node _ _ l r) :=
+    isBalanced l && isBalanced r && abs (diffFactor n) <= 1;
 
 --- 𝒪(𝓃 log 𝓃). Create an ;AVLTree; from an unsorted ;List;.
-fromList : {a : Type} -> Ord a -> List a -> AVLTree a;
-fromList o l := for (acc := empty) (x in l)  insert o x acc;
+fromList : {a : Type} -> Ord a -> List a -> AVLTree a
+  | o l := for (acc := empty) (x in l) insert o x acc;
 
 --- 𝒪(𝓃). Returns the number of elements of an ;AVLTree;.
-size : {a : Type} -> AVLTree a -> Nat;
-size empty := 0;
-size (node _ _ l r) := 1 + size l + size r;
+size : {a : Type} -> AVLTree a -> Nat
+  | empty := 0
+  | (node _ _ l r) := 1 + size l + size r;
 
 --- 𝒪(𝓃). Returns the elements of an ;AVLTree; in ascending order.
-toList : {a : Type} -> AVLTree a -> List a;
-toList empty := nil;
-toList (node x _ l r) := toList l ++ (x :: nil) ++ toList r;
+toList : {a : Type} -> AVLTree a -> List a
+  | empty := nil
+  | (node x _ l r) := toList l ++ (x :: nil) ++ toList r;
 
 --- 𝒪(𝓃). Formats the tree in a debug friendly format.
-prettyDebug : {a : Type} -> Show a -> AVLTree a -> String;
-prettyDebug {a} (mkShow fshow) :=
-  let
-    go : AVLTree a -> String;
-    go empty := "_";
-    go n@(node v h l r) :=
-      "("
-        ++str go l
-        ++str " h"
-        ++str Int.intToString (diffFactor n)
-        ++str " "
-        ++str fshow v
-        ++str " "
-        ++str go r
-        ++str ")";
-  in go;
+prettyDebug : {a : Type} -> Show a -> AVLTree a -> String
+  | {a} (mkShow fshow) :=
+    let
+      go : AVLTree a -> String;
+      go empty := "_";
+      go n@(node v h l r) :=
+        "("
+          ++str go l
+          ++str " h"
+          ++str Int.intToString (diffFactor n)
+          ++str " "
+          ++str fshow v
+          ++str " "
+          ++str go r
+          ++str ")";
+    in go;
 
 --- 𝒪(𝓃).
-toTree : {a : Type} -> AVLTree a -> Maybe (Tree a);
-toTree empty := nothing;
-toTree (node v _ l r) :=
-  just
-    (Tree.node v (catMaybes (toTree l :: toTree r :: nil)));
+toTree : {a : Type} -> AVLTree a -> Maybe (Tree a)
+  | empty := nothing
+  | (node v _ l r) :=
+    just
+      (Tree.node v (catMaybes (toTree l :: toTree r :: nil)));
 
 --- Returns the textual representation of an ;AVLTree;.
-pretty : {a : Type} -> Show a -> AVLTree a -> String;
-pretty s := maybe "empty" (Tree.treeToString s) ∘ toTree;
+pretty : {a : Type} -> Show a -> AVLTree a -> String
+  | s := maybe "empty" (Tree.treeToString s) ∘ toTree;
 
 module AVLTraits;
-  Eq : {a : Type} -> Eq.Eq a -> Eq.Eq (AVLTree a);
-  Eq {a} e :=
-    let
-      eqList : List a -> List a -> Bool;
-      eqList :=
-        case ListTraits.Eq e
-          | mkEq f := f;
-    in mkEq (eqList on toList);
+  Eq : {a : Type} -> Eq.Eq a -> Eq.Eq (AVLTree a)
+    | {a} e :=
+      let
+        eqList : List a -> List a -> Bool;
+        eqList :=
+          case ListTraits.Eq e
+            | mkEq f := f;
+      in mkEq (eqList on toList);
 
-  Ord : {a : Type} -> Ord.Ord a -> Ord.Ord (AVLTree a);
-  Ord {a} o :=
-    let
-      ordList : List a -> List a -> Ordering;
-      ordList :=
-        case ListTraits.Ord o
-          | mkOrd f := f;
-    in mkOrd (ordList on toList);
+  Ord : {a : Type} -> Ord.Ord a -> Ord.Ord (AVLTree a)
+    | {a} o :=
+      let
+        ordList : List a -> List a -> Ordering;
+        ordList :=
+          case ListTraits.Ord o
+            | mkOrd f := f;
+      in mkOrd (ordList on toList);
 end;

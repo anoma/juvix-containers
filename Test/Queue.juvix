@@ -1,19 +1,22 @@
 module Test.Queue;
 
-open import Stdlib.Prelude hiding {head;tail};
-open import Stdlib.Data.Nat;
-open import Stdlib.Data.Maybe;
-open import Test.JuvixUnit;
-open import Data.Queue;
+import Stdlib.Prelude open hiding {head; tail};
+import Stdlib.Data.Nat open;
+import Stdlib.Data.Maybe open;
+import Test.JuvixUnit open;
+import Data.Queue open;
 
 q : Queue Nat := empty;
+
 q1 : Queue Nat := push 1 q;
+
 q2 : Queue Nat := push 2 q1;
+
 q3 : Queue Nat := push 3 q2;
+
 q4 : Queue Nat := push 4 q3;
 
-tests : List Test;
-tests :=
+tests : List Test :=
   let
     checkWithList : Queue Nat -> List Nat -> Assertion;
     checkWithList q q' :=
@@ -22,8 +25,7 @@ tests :=
         "Queue should be equal"
         q
         (fromList q');
-  in 
-  testCase
+  in testCase
       "Queue.empty should be empty"
       (checkWithList q nil)
     :: testCase
@@ -43,24 +45,26 @@ tests :=
       "Queue.fromList composes with toList should be the identity"
       (assertEqual
         (QueueTraits.Eq NatTraits.Eq)
-        ("fromList . toList should be the identity")
+        "fromList . toList should be the identity"
         (fromList ∘ toList $ q3)
         q3)
     :: testCase
       "Queue.pop should remove first element"
       (assertEqual
-        (MaybeTraits.Eq (ProductTraits.Eq (NatTraits.Eq) (QueueTraits.Eq NatTraits.Eq)))
+        (MaybeTraits.Eq
+          (ProductTraits.Eq
+            (NatTraits.Eq)
+            (QueueTraits.Eq NatTraits.Eq)))
         "pop of queue q3"
         (pop q3)
-        (just (1 , fromList (3 :: 2 :: nil) )))
+        (just (1, fromList (3 :: 2 :: nil))))
     :: testCase
       "Queue.tail should return queue without first element"
       (assertEqual
         (MaybeTraits.Eq (QueueTraits.Eq NatTraits.Eq))
         "tail of queue q3"
         (tail q3)
-        (just ∘ fromList $ 3 :: 2 :: nil)) 
+        (just ∘ fromList $ 3 :: 2 :: nil))
     :: nil;
 
-main : IO;
-main := runTestSuite $ testSuite "Queue" tests;
+main : IO := runTestSuite $ testSuite "Queue" tests;
