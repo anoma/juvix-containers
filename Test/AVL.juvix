@@ -8,13 +8,13 @@ import Stdlib.Prelude open;
 mkTests : String × Nat × AVLTree Nat -> List Test
   | (title, len, s) :=
     let
-      mkTitle : String -> String;
-      mkTitle m := title ++str " " ++str m;
+      mkTitle : String -> String
+        | m := title ++str " " ++str m;
       sizeMsg : String := "sizes do not match";
       balanceMsg : String := "not balanced";
     in testCase
         (mkTitle "size")
-        (assertEqual NatTraits.Eq sizeMsg (size s) len)
+        (assertEqual eqNatI sizeMsg (size s) len)
       :: testCase
         (mkTitle "balanced")
         (assertTrue balanceMsg (isBalanced s))
@@ -25,35 +25,26 @@ TestDescr : Type := String × Nat × AVLTree Nat;
 s1 : TestDescr :=
   "s1"
     , 5
-    , fromList
-      NatTraits.Ord
-      (1 :: 2 :: 8 :: 3 :: 3 :: 2 :: 9 :: nil);
+    , fromList ordNatI (1 :: 2 :: 8 :: 3 :: 3 :: 2 :: 9 :: nil);
 
 s2 : TestDescr :=
   "s2"
     , 6
-    , fromList
-      NatTraits.Ord
-      (1 :: 3 :: 0 :: 4 :: 4 :: 8 :: 2 :: nil);
+    , fromList ordNatI (1 :: 3 :: 0 :: 4 :: 4 :: 8 :: 2 :: nil);
 
 s2-delete : TestDescr :=
-  case s2
-    | t, l, s :=
-      t ++str "-delete"
-        , sub l 2
-        , deleteMany NatTraits.Ord (1 :: 8 :: nil) s;
+  case s2 of {t, l, s :=
+    t ++str "-delete"
+      , sub l 2
+      , deleteMany ordNatI (1 :: 8 :: nil) s};
 
 s3 : TestDescr :=
   "s3"
     , 6
-    , fromList
-      NatTraits.Ord
-      (5 :: 4 :: 3 :: 2 :: 1 :: 0 :: nil);
+    , fromList ordNatI (5 :: 4 :: 3 :: 2 :: 1 :: 0 :: nil);
 
 s4 : TestDescr :=
-  "s4"
-    , 5
-    , fromList NatTraits.Ord (1 :: 2 :: 3 :: 4 :: 5 :: nil);
+  "s4", 5, fromList ordNatI (1 :: 2 :: 3 :: 4 :: 5 :: nil);
 
 tests : List Test :=
   concatMap
@@ -61,6 +52,6 @@ tests : List Test :=
     (s1 :: s2 :: s3 :: s4 :: s2-delete :: nil);
 
 main : IO :=
-  printStringLn (pretty NatTraits.Show (snd (snd s1)))
-    >> printStringLn (prettyDebug NatTraits.Show (snd (snd s1)))
+  printStringLn (pretty showNatI (snd (snd s1)))
+    >> printStringLn (prettyDebug showNatI (snd (snd s1)))
     >> runTestSuite (testSuite "AVL Set" tests);

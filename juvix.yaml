@@ -1,5 +1,11 @@
 name: containers
 version: 0.6.2
 dependencies:
-  - deps/stdlib
-  - deps/test
+  - git:
+      url: https://github.com/anoma/juvix-stdlib
+      ref: 4facf14d9b2d06b81ce1be1882aa9050f768cb45
+      name: stdlib
+  - git:
+      url: https://github.com/anoma/juvix-test
+      ref: v0.6.0
+      name: test

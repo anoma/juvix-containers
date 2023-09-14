@@ -10,8 +10,7 @@ Forest : Type -> Type
 
 --- N-Ary tree.
 positive
-type Tree (A : Type) :=
-  | node : A -> List (Tree A) -> Tree A;
+type Tree (A : Type) := node : A -> List (Tree A) -> Tree A;
 
 shift : String -> String -> List String -> List String
   | first other xs :=
@@ -20,10 +19,7 @@ shift : String -> String -> List String -> List String
 draw : {A : Type} -> Show A -> Tree A -> List String
   
   | {A} s@(mkShow fshow) (node v cs) :=
-    let
-      go : Tree A -> List String;
-      go := draw s;
-    in fshow v :: drawForest s cs;
+    fshow v :: drawForest s cs;
 
 drawForest : {A : Type} -> Show A -> Forest A -> List String
   

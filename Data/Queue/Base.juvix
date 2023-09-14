@@ -11,18 +11,15 @@ module Data.Queue.Base;
 
 import Stdlib.Prelude open;
 
-import Stdlib.Trait.Eq as Eq;
-open Eq using {Eq};
+import Stdlib.Trait.Eq as Eq open using {Eq};
 
-import Stdlib.Trait.Ord as Ord;
-open Ord using {Ord};
+import Stdlib.Trait.Ord as Ord open using {Ord};
 
-import Stdlib.Trait.Show as Show;
-open Show using {Show};
+import Stdlib.Trait.Show as Show open using {Show};
 
 --- A first-in-first-out data structure
 type Queue (A : Type) :=
-  | queue : List A -> List A -> Queue A;
+  queue : List A -> List A -> Queue A;
 
 --- 𝒪(1). The empty ;Queue;.
 empty : {A : Type} -> Queue A := queue nil nil;
@@ -81,22 +78,23 @@ module QueueTraits;
   Eq : {A : Type} -> Eq.Eq A -> Eq.Eq (Queue A)
     | {A} eq-a :=
       let
-        list-eq : List A -> List A -> Bool;
-        list-eq := eq (ListTraits.Eq eq-a);
-        go : Queue A -> Queue A -> Bool;
-        go q1 q2 := list-eq (toList q1) (toList q2);
+        list-eq : List A -> List A -> Bool :=
+          Eq.eq {{eqListI {{eq-a}}}};
+        go : Queue A -> Queue A -> Bool
+          | q1 q2 := list-eq (toList q1) (toList q2);
       in mkEq go;
 
   Show : {A : Type} -> Show.Show A -> Show.Show (Queue A)
     | showA :=
-      mkShow λ {| q := show (ListTraits.Show showA) (toList q)};
+      mkShow
+        λ {| q := Show.show {{showListI {{showA}}}} (toList q)};
 
   Ord : {A : Type} -> Ord.Ord A -> Ord.Ord (Queue A)
     | {A} ord-A :=
       let
-        go : Queue A -> Queue A -> Ordering;
-        go q1 q2 :=
-          cmp (ListTraits.Ord ord-A) (toList q1) (toList q2);
+        go : Queue A -> Queue A -> Ordering
+          | q1 q2 :=
+            Ord.cmp {{ordListI {{ord-A}}}} (toList q1) (toList q2);
       in mkOrd go;
 
 end;

@@ -10,9 +10,7 @@ import Data.BinaryTree as Tree;
 open Tree using {BinaryTree; leaf; node};
 
 type UnbalancedSet (A : Type) :=
-  | unbalancedSet : Ord A
-      -> BinaryTree A
-      -> UnbalancedSet A;
+  unbalancedSet : Ord A -> BinaryTree A -> UnbalancedSet A;
 
 empty : {A : Type} -> Ord A -> UnbalancedSet A
   | o := unbalancedSet o leaf;
@@ -20,26 +18,28 @@ empty : {A : Type} -> Ord A -> UnbalancedSet A
 member? : {A : Type} -> A -> UnbalancedSet A -> Bool
   | {A} x (unbalancedSet o@(mkOrd cmp) t) :=
     let
-      go : BinaryTree A -> Bool;
-      go leaf := false;
-      go (node l y r) :=
-        case cmp x y
-          | Ord.LT := go l
-          | Ord.GT := go r
-          | Ord.EQ := true;
+      go : BinaryTree A -> Bool
+        | leaf := false
+        | (node l y r) :=
+          case cmp x y of {
+            | Ord.LT := go l
+            | Ord.GT := go r
+            | Ord.EQ := true
+          };
     in go t;
 
 insert
   : {A : Type} -> A -> UnbalancedSet A -> UnbalancedSet A
   | {A} x (unbalancedSet o@(mkOrd cmp) t) :=
     let
-      go : BinaryTree A -> BinaryTree A;
-      go leaf := node leaf x leaf;
-      go n@(node l y r) :=
-        case cmp x y
-          | Ord.LT := node (go l) y r
-          | Ord.EQ := n
-          | Ord.GT := node l y (go r);
+      go : BinaryTree A -> BinaryTree A
+        | leaf := node leaf x leaf
+        | n@(node l y r) :=
+          case cmp x y of {
+            | Ord.LT := node (go l) y r
+            | Ord.EQ := n
+            | Ord.GT := node l y (go r)
+          };
     in unbalancedSet o (go t);
 
 length : {A : Type} -> UnbalancedSet A -> Nat
@@ -51,7 +51,7 @@ to-list : {A : Type} -> UnbalancedSet A -> List A
 set-ordering : {A : Type} -> Ord A -> Ord (UnbalancedSet A)
   | {A} o :=
     let
-      from-ord-list : Ord (List A) -> Ord (UnbalancedSet A);
-      from-ord-list (mkOrd cmp) :=
-        mkOrd λ {s1 s2 := cmp (to-list s1) (to-list s2)};
-    in from-ord-list (ListTraits.Ord o);
+      from-ord-list : Ord (List A) -> Ord (UnbalancedSet A)
+        | (mkOrd cmp) :=
+          mkOrd λ {s1 s2 := cmp (to-list s1) (to-list s2)};
+    in from-ord-list (ordListI {{o}});

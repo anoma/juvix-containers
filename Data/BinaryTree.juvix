@@ -15,9 +15,9 @@ fold
     -> B
   | {A} {B} f acc :=
     let
-      go : B -> BinaryTree A -> B;
-      go acc leaf := acc;
-      go acc (node l a r) := f a (go acc l) (go acc r);
+      go (acc : B) : BinaryTree A -> B
+        | leaf := acc
+        | (node l a r) := f a (go acc l) (go acc r);
     in go acc;
 
 length : {A : Type} -> BinaryTree A -> Nat :=

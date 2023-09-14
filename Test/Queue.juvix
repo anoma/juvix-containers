@@ -18,13 +18,13 @@ q4 : Queue Nat := push 4 q3;
 
 tests : List Test :=
   let
-    checkWithList : Queue Nat -> List Nat -> Assertion;
-    checkWithList q q' :=
-      assertEqual
-        (QueueTraits.Eq NatTraits.Eq)
-        "Queue should be equal"
-        q
-        (fromList q');
+    checkWithList : Queue Nat -> List Nat -> Assertion
+      | q q' :=
+        assertEqual
+          (QueueTraits.Eq eqNatI)
+          "Queue should be equal"
+          q
+          (fromList q');
   in testCase
       "Queue.empty should be empty"
       (checkWithList q nil)
@@ -37,34 +37,32 @@ tests : List Test :=
     :: testCase
       "Queue.head should return first element"
       (assertEqual
-        (MaybeTraits.Eq NatTraits.Eq)
+        (eqMaybeI {{eqNatI}})
         "head of queue q3"
         (head q3)
         (just 1))
     :: testCase
       "Queue.fromList composes with toList should be the identity"
       (assertEqual
-        (QueueTraits.Eq NatTraits.Eq)
+        (QueueTraits.Eq eqNatI)
         "fromList . toList should be the identity"
         (fromList ∘ toList $ q3)
         q3)
     :: testCase
       "Queue.pop should remove first element"
       (assertEqual
-        (MaybeTraits.Eq
-          (ProductTraits.Eq
-            (NatTraits.Eq)
-            (QueueTraits.Eq NatTraits.Eq)))
+        (eqMaybeI
+          {{eqProductI {{eqNatI}} {{QueueTraits.Eq eqNatI}}}})
         "pop of queue q3"
         (pop q3)
         (just (1, fromList (3 :: 2 :: nil))))
     :: testCase
       "Queue.tail should return queue without first element"
       (assertEqual
-        (MaybeTraits.Eq (QueueTraits.Eq NatTraits.Eq))
+        (eqMaybeI {{QueueTraits.Eq eqNatI}})
         "tail of queue q3"
         (tail q3)
-        (just ∘ fromList $ 3 :: 2 :: nil))
+        ((just ∘ fromList) (3 :: 2 :: nil)))
     :: nil;
 
 main : IO := runTestSuite $ testSuite "Queue" tests;

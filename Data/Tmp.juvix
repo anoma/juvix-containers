@@ -10,12 +10,14 @@ printNatListLn : List Nat → IO
 
 mapMaybe : {A B : Type} -> (A -> B) -> Maybe A -> Maybe B
   | f m :=
-    case m
+    case m of {
       | nothing := nothing
-      | just a := just (f a);
+      | just a := just (f a)
+    };
 
 isJust : {A : Type} -> Maybe A -> Bool
   | m :=
-    case m
+    case m of {
       | nothing := false
-      | just _ := true;
+      | just _ := true
+    };
