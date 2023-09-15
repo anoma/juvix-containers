@@ -14,7 +14,7 @@ mkTests : String × Nat × AVLTree Nat -> List Test
       balanceMsg : String := "not balanced";
     in [testCase
       (mkTitle "size")
-      (assertEqual eqNatI sizeMsg (size s) len); testCase
+      (assertEqual sizeMsg (size s) len); testCase
       (mkTitle "balanced")
       (assertTrue balanceMsg (isBalanced s))];
 

@@ -18,14 +18,9 @@ tests : List Test :=
       Set.insert s (Set.empty (Set.set-ordering ordNatI));
   in [testCase
     "Set.length computes the expected size"
-    (assertEqual
-      eqNatI
-      "unexpected size"
-      (Set.length s)
-      3); testCase
+    (assertEqual "unexpected size" (Set.length s) 3); testCase
     "Set.to-list computes the expected members"
     (assertEqual
-      (eqListI {{eqNatI}})
       "unexpected memebrs"
       (quickSort ordNatI (Set.to-list s))
       [1; 2; 3]); testCase
@@ -38,10 +33,6 @@ tests : List Test :=
       "unexpected member is present"
       (Set.member? 0 s)); testCase
     "setInSet has length 1"
-    (assertEqual
-      eqNatI
-      "unexpected size"
-      (Set.length setInSet)
-      1)];
+    (assertEqual "unexpected size" (Set.length setInSet) 1)];
 
 main : IO := runTestSuite (testSuite "Set" tests);

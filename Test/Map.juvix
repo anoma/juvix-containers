@@ -16,7 +16,6 @@ tests : List Test :=
       : List (Nat × Nat) -> List (Nat × Nat) -> Assertion
       | actual expected :=
         assertEqual
-          eqListI
           "lists are not equal"
           (quickSort ordProductI actual)
           expected;
@@ -30,11 +29,7 @@ tests : List Test :=
       "could not find expected key"
       (Map.lookup 2 m)); testCase
     "Map.length computes the number of keys in the map"
-    (assertEqual
-      eqNatI
-      "expected length 2"
-      (Map.size m)
-      2); testCase
+    (assertEqual "expected length 2" (Map.size m) 2); testCase
     "Map.toList computes the expected members"
     (assertEqListPair (Map.toList m2) [1, 2; 3, 4]); testCase
     "Map.insert-with replaces duplicates using merge function"

@@ -7,5 +7,5 @@ dependencies:
       name: stdlib
   - git:
       url: https://github.com/anoma/juvix-test
-      ref: v0.6.0
+      ref: v0.6.1
       name: test
