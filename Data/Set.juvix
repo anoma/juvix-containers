@@ -10,10 +10,6 @@ import Stdlib.Trait.Ord as Ord open using {Ord};
 Set : Type -> Type
   | A := AVLTree A;
 
-module SetTraits;
-  Eq : {A : Type} -> Eq.Eq A -> Eq.Eq (Set A) :=
-    AVLTraits.Eq;
+eqSetI {A} {{Eq A}} : Eq (Set A) := eqAVLTreeI;
 
-  Ord : {A : Type} -> Ord.Ord A -> Ord.Ord (Set A) :=
-    AVLTraits.Ord;
-end;
+ordSetI {A} {{Ord A}} : Ord (Set A) := ordAVLTreeI;

@@ -20,25 +20,22 @@ mkTests : String × Nat × AVLTree Nat -> List Test
 
 TestDescr : Type := String × Nat × AVLTree Nat;
 
-s1 : TestDescr :=
-  "s1", 5, fromList ordNatI [1; 2; 8; 3; 3; 2; 9];
+s1 : TestDescr := "s1", 5, fromList [1; 2; 8; 3; 3; 2; 9];
 
-s2 : TestDescr :=
-  "s2", 6, fromList ordNatI [1; 3; 0; 4; 4; 8; 2];
+s2 : TestDescr := "s2", 6, fromList [1; 3; 0; 4; 4; 8; 2];
 
 s2-delete : TestDescr :=
   case s2 of {t, l, s :=
-    t ++str "-delete", sub l 2, deleteMany ordNatI [1; 8] s};
+    t ++str "-delete", sub l 2, deleteMany [1; 8] s};
 
-s3 : TestDescr :=
-  "s3", 6, fromList ordNatI [5; 4; 3; 2; 1; 0];
+s3 : TestDescr := "s3", 6, fromList [5; 4; 3; 2; 1; 0];
 
-s4 : TestDescr := "s4", 5, fromList ordNatI [1; 2; 3; 4; 5];
+s4 : TestDescr := "s4", 5, fromList [1; 2; 3; 4; 5];
 
 tests : List Test :=
   concatMap mkTests [s1; s2; s3; s4; s2-delete];
 
 main : IO :=
-  printStringLn (pretty showNatI (snd (snd s1)))
-    >> printStringLn (prettyDebug showNatI (snd (snd s1)))
+  printStringLn (pretty (snd (snd s1)))
+    >> printStringLn (prettyDebug (snd (snd s1)))
     >> runTestSuite (testSuite "AVL Set" tests);

@@ -19,87 +19,55 @@ import Stdlib.Trait.Ord as Ord open using {Ord};
 
 import Test.JuvixUnit open;
 
-type Binding (A B : Type) :=
-  binding : A -> B -> Binding A B;
+type Binding (A B : Type) := binding A B;
 
-key : {A B : Type} -> Binding A B -> A
+key {A B} : Binding A B -> A
   | (binding a _) := a;
 
-value : {A B : Type} -> Binding A B -> B
+value {A B} : Binding A B -> B
   | (binding _ b) := b;
 
-toPair : {A B : Type} -> Binding A B -> A × B
+toPair {A B} : Binding A B -> A × B
   | (binding a b) := a, b;
 
-bindingKeyOrdering
-  : {A B : Type} -> Ord A -> Ord (Binding A B)
-  | (mkOrd cmp) := mkOrd λ {b1 b2 := cmp (key b1) (key b2)};
+instance
+bindingKeyOrdering {A B} {{Ord A}} : Ord (Binding A B) :=
+  mkOrd λ {b1 b2 := Ord.cmp (key b1) (key b2)};
 
-type Map (A B : Type) :=
-  mkMap : AVLTree (Binding A B) -> Map A B;
+type Map (A B : Type) := mkMap (AVLTree (Binding A B));
 
 empty : {A B : Type} -> Map A B := mkMap AVL.empty;
 
-insertWith
-  : {A B : Type}
-    -> Ord A
-    -> (B -> B -> B)
-    -> A
-    -> B
-    -> Map A B
-    -> Map A B
-  | {A} {B} o f k v (mkMap s) :=
+insertWith {A B} {{Ord A}}
+  : (B -> B -> B) -> A -> B -> Map A B -> Map A B
+  | f k v (mkMap s) :=
     let
       f' : Binding A B -> Binding A B -> Binding A B
         | (binding a b1) (binding _ b2) := binding a (f b1 b2);
-    in mkMap
-      (Set.insertWith (bindingKeyOrdering o) f' (binding k v) s);
+    in mkMap (Set.insertWith f' (binding k v) s);
 
-insert
-  : {A B : Type} -> Ord A -> A -> B -> Map A B -> Map A B
-  | o := insertWith o λ {old new := new};
+insert {A B : Type} {{Ord A}}
+  : A -> B -> Map A B -> Map A B :=
+  insertWith λ {old new := new};
 
-lookup : {A B : Type} -> Ord A -> A -> Map A B -> Maybe B
-  | {A} {B} o k (mkMap s) :=
-    mapMaybe value (Set.lookupWith o key k s);
+lookup {A B} {{Ord A}} (k : A) : Map A B -> Maybe B
+  | (mkMap s) := mapMaybe value (Set.lookupWith key k s);
 
-fromListWith
-  : {A B : Type}
-    -> Ord A
-    -> (B -> B -> B)
-    -> List (A × B)
-    -> Map A B
-  | o f xs :=
+fromListWith {A B} {{Ord A}}
+  : (B -> B -> B) -> List (A × B) -> Map A B
+  | f xs :=
     for (acc := empty) (k, v in xs)
-      insertWith o f k v acc;
+      insertWith f k v acc;
 
-fromList : {A B : Type} -> Ord A -> List (A × B) -> Map A B
-  | o := fromListWith o λ {old new := new};
+fromList {A B} {{Ord A}} : List (A × B) -> Map A B :=
+  fromListWith λ {old new := new};
 
-toList : {A B : Type} -> Map A B -> List (A × B)
+toList {A B : Type} : Map A B -> List (A × B)
   | (mkMap s) := map (x in Set.toList s) toPair x;
 
-size : {A B : Type} -> Map A B -> Nat
+size {A B} : Map A B -> Nat
   | (mkMap s) := Set.size s;
 
-module MapTraits;
-  Eq : {A B : Type} -> Eq.Eq A -> Eq.Eq B -> Eq.Eq (Map A B)
-    | {A} {B} eqA eqB :=
-      let
-        eqList : List (A × B) -> List (A × B) -> Bool :=
-          case eqListI {{eqProductI {{eqA}} {{eqB}}}} of {mkEq f :=
-            f};
-      in mkEq (eqList on toList);
-
-  Ord
-    : {A B : Type}
-      -> Ord.Ord A
-      -> Ord.Ord B
-      -> Ord.Ord (Map A B)
-    | {A} {B} ordA ordB :=
-      let
-        ordList : List (A × B) -> List (A × B) -> Ordering :=
-          case ordListI
-            {{ordProductI {{ordA}} {{ordB}}}} of {mkOrd f := f};
-      in mkOrd (ordList on toList);
-end;
+instance
+eqMapI {A B} {{Eq A}} {{Eq B}} : Eq (Map A B) :=
+  mkEq (Eq.eq on toList);

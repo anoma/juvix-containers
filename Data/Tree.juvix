@@ -10,26 +10,25 @@ Forest : Type -> Type
 
 --- N-Ary tree.
 positive
-type Tree (A : Type) := node : A -> List (Tree A) -> Tree A;
+type Tree (A : Type) := node A (List (Tree A));
 
 shift : String -> String -> List String -> List String
   | first other xs :=
     zipWith (++str) (first :: replicate (length xs) other) xs;
 
-draw : {A : Type} -> Show A -> Tree A -> List String
-  
-  | {A} s@(mkShow fshow) (node v cs) :=
-    fshow v :: drawForest s cs;
+terminating
+draw {A} {{Show A}} : Tree A -> List String
+  | (node v cs) := Show.show v :: drawForest cs;
 
-drawForest : {A : Type} -> Show A -> Forest A -> List String
-  
-  | s nil := nil
-  | s (h :: nil) := "|" :: shift "`- " "   " (draw s h)
-  | s (h :: hs) :=
-    "|" :: shift "+- " "|  " (draw s h) ++ drawForest s hs;
+terminating
+drawForest {A} {{Show A}} : Forest A -> List String
+  | [] := []
+  | [h] := "|" :: shift "`- " "   " (draw h)
+  | (h :: hs) :=
+    "|" :: shift "+- " "|  " (draw h) ++ drawForest hs;
 
-treeToString : {A : Type} -> Show A -> Tree A -> String
-  | s := unlines ∘ draw s;
+treeToString {A} {{Show A}} : Tree A -> String :=
+  unlines ∘ draw;
 
-forestToString : {A : Type} -> Show A -> Forest A -> String
-  | s := unlines ∘ drawForest s;
+forestToString {A} {{Show A}} : Forest A -> String :=
+  unlines ∘ drawForest;

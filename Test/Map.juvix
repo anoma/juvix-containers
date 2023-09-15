@@ -9,30 +9,26 @@ open Map using {Map};
 tests : List Test :=
   let
     m : Map Nat String :=
-      Map.insert
-        ordNatI
-        2
-        "two"
-        (Map.insert ordNatI 1 "one" Map.empty);
+      Map.insert 2 "two" (Map.insert 1 "one" Map.empty);
     m2 : Map Nat Nat :=
-      Map.insert ordNatI 3 4 (Map.insert ordNatI 1 2 Map.empty);
+      Map.insert 3 4 (Map.insert 1 2 Map.empty);
     assertEqListPair
       : List (Nat × Nat) -> List (Nat × Nat) -> Assertion
       | actual expected :=
         assertEqual
-          (eqListI {{eqProductI {{eqNatI}} {{eqNatI}}}})
+          eqListI
           "lists are not equal"
-          (quickSort (ordProductI {{ordNatI}} {{ordNatI}}) actual)
+          (quickSort ordProductI actual)
           expected;
   in [testCase
     "Map.lookup missing key"
     (assertNothing
       (const "found a key expected to be missing")
-      (Map.lookup ordNatI 10 m)); testCase
+      (Map.lookup 10 m)); testCase
     "Map.lookup available key"
     (assertJust
       "could not find expected key"
-      (Map.lookup ordNatI 2 m)); testCase
+      (Map.lookup 2 m)); testCase
     "Map.length computes the number of keys in the map"
     (assertEqual
       eqNatI
@@ -43,23 +39,23 @@ tests : List Test :=
     (assertEqListPair (Map.toList m2) [1, 2; 3, 4]); testCase
     "Map.insert-with replaces duplicates using merge function"
     (assertEqListPair
-      (Map.toList (Map.insertWith ordNatI (+) 1 3 m2))
+      (Map.toList (Map.insertWith (+) 1 3 m2))
       [1, 5; 3, 4]); testCase
     "Map.fromListWith de-duplicates using merge function"
     (assertEqListPair
-      (Map.toList (Map.fromListWith ordNatI (+) [1, 1; 1, 2]))
+      (Map.toList (Map.fromListWith (+) [1, 1; 1, 2]))
       [1, 3]); testCase
     "Map.fromList can be used to create the empty Map"
     (assertEqListPair
-      (Map.toList (Map.fromList ordNatI nil))
+      (Map.toList (Map.fromList nil))
       (nil)); testCase
     "Map.fromList overwrites duplicates"
     (assertEqListPair
-      (Map.toList (Map.fromList ordNatI [1, 1; 1, 2]))
+      (Map.toList (Map.fromList [1, 1; 1, 2]))
       [1, 2]); testCase
     "Map.fromList distinct keys"
     (assertEqListPair
-      (Map.toList (Map.fromList ordNatI [1, 1; 2, 2]))
+      (Map.toList (Map.fromList [1, 1; 2, 2]))
       [1, 1; 2, 2])];
 
 main : IO := runTestSuite (testSuite "Map" tests);

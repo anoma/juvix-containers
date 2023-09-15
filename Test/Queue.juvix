@@ -21,7 +21,7 @@ tests : List Test :=
     checkWithList : Queue Nat -> List Nat -> Assertion
       | q q' :=
         assertEqual
-          (QueueTraits.Eq eqNatI)
+          eqQueueI
           "Queue should be equal"
           q
           (fromList q');
@@ -34,26 +34,25 @@ tests : List Test :=
     (checkWithList q2 [2; 1]); testCase
     "Queue.head should return first element"
     (assertEqual
-      (eqMaybeI {{eqNatI}})
+      eqMaybeI
       "head of queue q3"
       (head q3)
       (just 1)); testCase
     "Queue.fromList composes with toList should be the identity"
     (assertEqual
-      (QueueTraits.Eq eqNatI)
+      eqQueueI
       "fromList . toList should be the identity"
       (fromList ∘ toList $ q3)
       q3); testCase
     "Queue.pop should remove first element"
     (assertEqual
-      (eqMaybeI
-        {{eqProductI {{eqNatI}} {{QueueTraits.Eq eqNatI}}}})
+      eqMaybeI
       "pop of queue q3"
       (pop q3)
       (just (1, fromList [3; 2]))); testCase
     "Queue.tail should return queue without first element"
     (assertEqual
-      (eqMaybeI {{QueueTraits.Eq eqNatI}})
+      eqMaybeI
       "tail of queue q3"
       (tail q3)
       ((just ∘ fromList) [3; 2]))];
