@@ -4,38 +4,31 @@ module Data.Tree;
 import Stdlib.Prelude open;
 
 --- A ;List; of trees.
-Forest : Type -> Type;
+Forest : Type -> Type
+  
+  | A := List (Tree A);
 
 --- N-Ary tree.
 positive
-type Tree (A : Type) :=
-  | node : A -> Forest A -> Tree A;
+type Tree (A : Type) := node A (List (Tree A));
 
-Forest A := List (Tree A);
+shift : String -> String -> List String -> List String
+  | first other xs :=
+    zipWith (++str) (first :: replicate (length xs) other) xs;
 
-shift : String -> String -> List String -> List String;
-shift first other xs :=
-  zipWith (++str) (first :: replicate (length xs) other) xs;
+terminating
+draw {A} {{Show A}} : Tree A -> List String
+  | (node v cs) := Show.show v :: drawForest cs;
 
-draw : {A : Type} -> Show A -> Tree A -> List String;
+terminating
+drawForest {A} {{Show A}} : Forest A -> List String
+  | [] := []
+  | [h] := "|" :: shift "`- " "   " (draw h)
+  | (h :: hs) :=
+    "|" :: shift "+- " "|  " (draw h) ++ drawForest hs;
 
-drawForest :
-  {A : Type} -> Show A -> Forest A -> List String;
+treeToString {A} {{Show A}} : Tree A -> String :=
+  unlines ∘ draw;
 
-draw {A} s@(mkShow fshow) (node v cs) :=
-  let
-    go : Tree A -> List String;
-    go := draw s;
-  in fshow v :: drawForest s cs;
-
-drawForest s nil := nil;
-drawForest s (h :: nil) :=
-  "|" :: shift "`- " "   " (draw s h);
-drawForest s (h :: hs) :=
-  "|" :: shift "+- " "|  " (draw s h) ++ drawForest s hs;
-
-treeToString : {A : Type} -> Show A -> Tree A -> String;
-treeToString s := unlines ∘ draw s;
-
-forestToString : {A : Type} -> Show A -> Forest A -> String;
-forestToString s := unlines ∘ drawForest s;
+forestToString {A} {{Show A}} : Forest A -> String :=
+  unlines ∘ drawForest;

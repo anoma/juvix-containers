@@ -1,31 +1,19 @@
 
 all: test
 
-deps/stdlib:
-	@mkdir -p deps/
-	@git clone https://github.com/anoma/juvix-stdlib.git deps/stdlib
-	@git -C deps/stdlib checkout e94ea21027ffa63929ab67e12e917b23792b8c57
-
-deps/test:
-	@mkdir -p deps/
-	@git clone --branch v0.5.2 --depth 1 https://github.com/anoma/juvix-test.git deps/test
-	$(MAKE) -C deps/test deps
-
-deps: deps/stdlib deps/test
-
-build/UnbalancedSet: $(wildcard ./**/*.juvix) deps
+build/UnbalancedSet: $(wildcard ./**/*.juvix)
 	@mkdir -p build/
 	juvix compile Test/UnbalancedSet.juvix -o build/UnbalancedSet
 
-build/Map: $(wildcard ./**/*.juvix) deps
+build/Map: $(wildcard ./**/*.juvix)
 	@mkdir -p build/
 	juvix compile Test/Map.juvix -o build/Map
 
-build/AVL: $(shell find . -name '*.juvix') deps
+build/AVL: $(shell find . -name '*.juvix')
 	@mkdir -p build/
 	juvix compile Test/AVL.juvix -o build/AVL
 
-build/Queue: $(shell find . -name '*.juvix') deps
+build/Queue: $(shell find . -name '*.juvix')
 	@mkdir -p build/
 	juvix compile Test/Queue.juvix -o build/Queue
 
@@ -45,7 +33,7 @@ clean-build:
 
 .PHONY: clean-deps
 clean-deps:
-	@rm -rf deps/
+	@rm -rf/
 
 .PHONY: clean
 clean: clean-deps clean-build

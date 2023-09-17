@@ -6,92 +6,68 @@ import Stdlib.Data.Nat.Ord as Nat;
 import Data.Set as Set;
 open Set using {Set};
 
+import Data.Set.AVL as AVL;
+open AVL using {AVLTree};
+
 import Data.BinaryTree as Tree;
 
 import Data.Tmp open;
 
+import Stdlib.Trait.Eq as Eq open using {Eq};
+
+import Stdlib.Trait.Ord as Ord open using {Ord};
+
 import Test.JuvixUnit open;
 
-type Binding (A B : Type) :=
-  | binding : A -> B -> Binding A B;
+type Binding (A B : Type) := binding A B;
 
-key : {A B : Type} -> Binding A B -> A;
-key (binding a _) := a;
+key {A B} : Binding A B -> A
+  | (binding a _) := a;
 
-value : {A B : Type} -> Binding A B -> B;
-value (binding _ b) := b;
+value {A B} : Binding A B -> B
+  | (binding _ b) := b;
 
-toPair : {A B : Type} -> Binding A B -> A × B;
-toPair (binding a b) := a, b;
+toPair {A B} : Binding A B -> A × B
+  | (binding a b) := a, b;
 
-bindingKeyOrdering :
-  {A B : Type} -> Ord A -> Ord (Binding A B);
-bindingKeyOrdering (mkOrd cmp) :=
-  mkOrd λ {b1 b2 := cmp (key b1) (key b2)};
+instance
+bindingKeyOrdering {A B} {{Ord A}} : Ord (Binding A B) :=
+  mkOrd λ {b1 b2 := Ord.cmp (key b1) (key b2)};
 
-type Map (A B : Type) :=
-  | mkMap : Set (Binding A B) -> Map A B;
+type Map (A B : Type) := mkMap (AVLTree (Binding A B));
 
-empty : {A B : Type} -> Map A B;
-empty := mkMap Set.empty;
+empty : {A B : Type} -> Map A B := mkMap AVL.empty;
 
-insertWith :
-  {A B : Type}
-    -> Ord A
-    -> (B -> B -> B)
-    -> A
-    -> B
-    -> Map A B
-    -> Map A B;
-insertWith {A} {B} o f k v (mkMap s) :=
-  let
-    f' : Binding A B -> Binding A B -> Binding A B;
-    f' (binding a b1) (binding _ b2) := binding a (f b1 b2);
-  in mkMap
-    (Set.insertWith (bindingKeyOrdering o) f' (binding k v) s);
-
-insert :
-  {A B : Type} -> Ord A -> A -> B -> Map A B -> Map A B;
-insert o := insertWith o λ {old new := new};
-
-lookup : {A B : Type} -> Ord A -> A -> Map A B -> Maybe B;
-lookup {A} {B} o k (mkMap s) :=
-  mapMaybe value (Set.lookupWith o key k s);
-
-fromListWith :
-  {A B : Type}
-    -> Ord A
-    -> (B -> B -> B)
-    -> List (A × B)
-    -> Map A B;
-fromListWith o f xs :=
-  for (acc := empty) (k, v in xs) insertWith o f k v acc;
-
-fromList : {A B : Type} -> Ord A -> List (A × B) -> Map A B;
-fromList o := fromListWith o λ {old new := new};
-
-toList : {A B : Type} -> Map A B -> List (A × B);
-toList (mkMap s) := map (x in Set.toList s) toPair x;
-
-size : {A B : Type} -> Map A B -> Nat;
-size (mkMap s) := Set.size s;
-
-module MapTraits;
-  Eq : {A B : Type} -> Eq A -> Eq B -> Eq (Map A B);
-  Eq {A} {B} eqA eqB :=
+insertWith {A B} {{Ord A}}
+  : (B -> B -> B) -> A -> B -> Map A B -> Map A B
+  | f k v (mkMap s) :=
     let
-      eqList : List (A × B) -> List (A × B) -> Bool;
-      eqList :=
-        case ListTraits.Eq (ProductTraits.Eq eqA eqB)
-          | mkEq f := f;
-    in mkEq (eqList on toList);
+      f' : Binding A B -> Binding A B -> Binding A B
+        | (binding a b1) (binding _ b2) := binding a (f b1 b2);
+    in mkMap (Set.insertWith f' (binding k v) s);
 
-  Ord : {A B : Type} -> Ord A -> Ord B -> Ord (Map A B);
-  Ord {A} {B} ordA ordB :=
-    let
-      ordList : List (A × B) -> List (A × B) -> Ordering;
-      ordList :=
-        case ListTraits.Ord (ProductTraits.Ord ordA ordB)
-          | mkOrd f := f;
-    in mkOrd (ordList on toList);
-end;
+insert {A B : Type} {{Ord A}}
+  : A -> B -> Map A B -> Map A B :=
+  insertWith λ {old new := new};
+
+lookup {A B} {{Ord A}} (k : A) : Map A B -> Maybe B
+  | (mkMap s) := mapMaybe value (Set.lookupWith key k s);
+
+fromListWith {A B} {{Ord A}}
+  : (B -> B -> B) -> List (A × B) -> Map A B
+  | f xs :=
+    for (acc := empty) (k, v in xs)
+      insertWith f k v acc;
+
+fromList {A B} {{Ord A}} : List (A × B) -> Map A B :=
+  fromListWith λ {old new := new};
+
+toList {A B : Type} : Map A B -> List (A × B)
+  | (mkMap s) := map (x in Set.toList s) toPair x;
+
+size {A B} : Map A B -> Nat
+  | (mkMap s) := Set.size s;
+
+instance
+eqMapI {A B} {{Eq A}} {{Eq B}} : Eq (Map A B) :=
+  mkEq (Eq.eq on toList);

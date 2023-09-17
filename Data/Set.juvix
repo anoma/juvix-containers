@@ -3,13 +3,13 @@ module Data.Set;
 import Stdlib.Prelude open;
 import Data.Set.AVL open public;
 
-Set : Type -> Type;
-Set A := AVLTree A;
+import Stdlib.Trait.Eq as Eq open using {Eq};
 
-module SetTraits;
-  Eq : {A : Type} -> Eq A -> Eq (Set A);
-  Eq := AVLTraits.Eq;
+import Stdlib.Trait.Ord as Ord open using {Ord};
 
-  Ord : {A : Type} -> Ord A -> Ord (Set A);
-  Ord := AVLTraits.Ord;
-end;
+Set : Type -> Type
+  | A := AVLTree A;
+
+eqSetI {A} {{Eq A}} : Eq (Set A) := eqAVLTreeI;
+
+ordSetI {A} {{Ord A}} : Ord (Set A) := ordAVLTreeI;

@@ -6,51 +6,33 @@ import Test.JuvixUnit open;
 import Data.UnbalancedSet as Set;
 open Set using {UnbalancedSet};
 
-tests : List Test;
-tests :=
+tests : List Test :=
   let
-    s : UnbalancedSet Nat;
-    s :=
+    s : UnbalancedSet Nat :=
       Set.insert
         1
         (Set.insert
           3
-          (Set.insert 2 (Set.insert 1 (Set.empty NatTraits.Ord))));
-    setInSet : UnbalancedSet (UnbalancedSet Nat);
-    setInSet :=
-      Set.insert s (Set.empty (Set.set-ordering NatTraits.Ord));
-  in testCase
-      "Set.length computes the expected size"
-      (assertEqual
-        NatTraits.Eq
-        "unexpected size"
-        (Set.length s)
-        3)
-    :: testCase
-      "Set.to-list computes the expected members"
-      (assertEqual
-        (ListTraits.Eq NatTraits.Eq)
-        "unexpected memebrs"
-        (quickSort NatTraits.Ord (Set.to-list s))
-        (1 :: 2 :: 3 :: nil))
-    :: testCase
-      "Set.member? computes true for expected member"
-      (assertTrue
-        "expected member is not present"
-        (Set.member? 1 s))
-    :: testCase
-      "Set.member? computes false for unexpected member"
-      (assertFalse
-        "unexpected member is present"
-        (Set.member? 0 s))
-    :: testCase
-      "setInSet has length 1"
-      (assertEqual
-        NatTraits.Eq
-        "unexpected size"
-        (Set.length setInSet)
-        1)
-    :: nil;
+          (Set.insert 2 (Set.insert 1 (Set.empty ordNatI))));
+    setInSet : UnbalancedSet (UnbalancedSet Nat) :=
+      Set.insert s (Set.empty (Set.set-ordering ordNatI));
+  in [testCase
+    "Set.length computes the expected size"
+    (assertEqual "unexpected size" (Set.length s) 3); testCase
+    "Set.to-list computes the expected members"
+    (assertEqual
+      "unexpected memebrs"
+      (quickSort ordNatI (Set.to-list s))
+      [1; 2; 3]); testCase
+    "Set.member? computes true for expected member"
+    (assertTrue
+      "expected member is not present"
+      (Set.member? 1 s)); testCase
+    "Set.member? computes false for unexpected member"
+    (assertFalse
+      "unexpected member is present"
+      (Set.member? 0 s)); testCase
+    "setInSet has length 1"
+    (assertEqual "unexpected size" (Set.length setInSet) 1)];
 
-main : IO;
-main := runTestSuite (testSuite "Set" tests);
+main : IO := runTestSuite (testSuite "Set" tests);

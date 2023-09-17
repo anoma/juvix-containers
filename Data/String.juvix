@@ -3,5 +3,5 @@ module Data.String;
 import Stdlib.Prelude open;
 import Stdlib.Data.String.Ord open;
 
-null? : String -> Bool;
-null? s := s == "";
+null? : String -> Bool
+  | s := s == "";
