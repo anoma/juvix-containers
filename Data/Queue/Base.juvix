@@ -1,7 +1,7 @@
 --- This module provides an implementation of a First-In, First-Out (FIFO)
 --- queue based on Okasaki's "Purely Functional Data Structures." Ch.3.
 ---
---- This Okasaki Queue version data structure ensures worst-case constant-time
+--- This Okasaki Queue version data structure ensures amortized constant-time
 --- performance for basic operations such as push, pop, and front.
 ---
 --- The OkasakiQueue consists of two lists (front and back) to separate
@@ -43,7 +43,7 @@ check {A} : Queue A -> Queue A
   | (queue nil back) := queue (reverse back) nil
   | q := q;
 
---- 𝒪(1). Returns the first element and the rest of the ;Queue;.
+--- 𝒪(n), but amortized 𝒪(1). Returns the first element and the rest of the ;Queue;.
 --- If the ;Queue; is empty then returns ;nothing;.
 pop {A} : Queue A -> Maybe (A × Queue A)
   | (queue nil _) := nothing
