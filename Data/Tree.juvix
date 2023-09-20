@@ -4,17 +4,15 @@ module Data.Tree;
 import Stdlib.Prelude open;
 
 --- A ;List; of trees.
-Forest : Type -> Type
-  
-  | A := List (Tree A);
+Forest (A : Type) : Type := List (Tree A);
 
 --- N-Ary tree.
 positive
 type Tree (A : Type) := node A (List (Tree A));
 
-shift : String -> String -> List String -> List String
-  | first other xs :=
-    zipWith (++str) (first :: replicate (length xs) other) xs;
+shift (first other : String) (xs : List String)
+  : List String :=
+  zipWith (++str) (first :: replicate (length xs) other) xs;
 
 terminating
 draw {A} {{Show A}} : Tree A -> List String

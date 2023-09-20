@@ -8,16 +8,10 @@ printNatListLn : List Nat → IO
   | (x :: xs) :=
     printNat x >> printString " :: " >> printNatListLn xs;
 
-mapMaybe : {A B : Type} -> (A -> B) -> Maybe A -> Maybe B
-  | f m :=
-    case m of {
-      | nothing := nothing
-      | just a := just (f a)
-    };
+mapMaybe {A B} (f : A -> B) : Maybe A -> Maybe B
+  | nothing := nothing
+  | (just a) := just (f a);
 
-isJust : {A : Type} -> Maybe A -> Bool
-  | m :=
-    case m of {
-      | nothing := false
-      | just _ := true
-    };
+isJust {A} : Maybe A -> Bool
+  | nothing := false
+  | (just _) := true;
