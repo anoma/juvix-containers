@@ -4,7 +4,7 @@
 --- This Okasaki Queue version data structure ensures amortized constant-time
 --- performance for basic operations such as push, pop, and front.
 ---
---- The OkasakiQueue consists of two lists (front and back) to separate
+--- The Okasaki Queue consists of two lists (front and back) to separate
 --- the concerns of adding and removing elements for ensuring efficient
 --- performance.
 module Data.Queue.Base;
@@ -33,7 +33,8 @@ head {A} : Queue A -> Maybe A
   | (queue nil _) := nothing
   | (queue (x :: _) _) := just x;
 
---- 𝒪(1). Removes the first element from the ;Queue;. If the ;Queue; is empty then returns ;nothing;.
+--- 𝒪(1). Removes the first element from the ;Queue;. If the ;Queue; is empty
+--  then returns ;nothing;.
 tail {A} : Queue A -> Maybe (Queue A)
   | (queue nil _) := nothing
   | (queue (_ :: front) back) := just (queue front back);
@@ -56,8 +57,9 @@ push {A} (x : A) : Queue A -> Queue A
   | (queue front back) := check (queue front (x :: back));
 
 --- 𝒪(n). Adds a list of elements to the end of the ;Queue;.
-pushMany {A} (xs : List A) : Queue A -> Queue A
-  | q := for (q' := q) (x in xs) push x q';
+pushMany {A} (xs : List A) (q : Queue A) : Queue A :=
+  for (acc := q) (x in xs)
+    push x acc;
 
 --- 𝒪(n). Build a ;Queue; from a ;List;.
 fromList {A} (xs : List A) : Queue A := pushMany xs empty;
