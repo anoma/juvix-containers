@@ -19,7 +19,7 @@ import Stdlib.Trait.Ord as Ord open using {Ord};
 
 import Test.JuvixUnit open;
 
-type Binding (A B : Type) := binding A B;
+type Binding A B := binding A B;
 
 key {A B} : Binding A B -> A
   | (binding a _) := a;
@@ -34,13 +34,13 @@ instance
 bindingKeyOrdering {A B} {{Ord A}} : Ord (Binding A B) :=
   mkOrd λ {b1 b2 := Ord.cmp (key b1) (key b2)};
 
-type Map (A B : Type) := mkMap (AVLTree (Binding A B));
+type Map A B := mkMap (AVLTree (Binding A B));
 
-empty : {A B : Type} -> Map A B := mkMap AVL.empty;
+empty {A B} : Map A B := mkMap AVL.empty;
 
-insertWith {A B} {{Ord A}}
-  : (B -> B -> B) -> A -> B -> Map A B -> Map A B
-  | f k v (mkMap s) :=
+insertWith {A B} {{Ord A}} (f : B -> B -> B) (k : A) (v : B)
+  : Map A B -> Map A B
+  | (mkMap s) :=
     let
       f' : Binding A B -> Binding A B -> Binding A B
         | (binding a b1) (binding _ b2) := binding a (f b1 b2);
@@ -53,16 +53,15 @@ insert {A B : Type} {{Ord A}}
 lookup {A B} {{Ord A}} (k : A) : Map A B -> Maybe B
   | (mkMap s) := mapMaybe value (Set.lookupWith key k s);
 
-fromListWith {A B} {{Ord A}}
-  : (B -> B -> B) -> List (A × B) -> Map A B
-  | f xs :=
-    for (acc := empty) (k, v in xs)
-      insertWith f k v acc;
+fromListWith {A B} {{Ord A}} (f : B -> B -> B) (xs : List
+  (A × B)) : Map A B :=
+  for (acc := empty) (k, v in xs)
+    insertWith f k v acc;
 
 fromList {A B} {{Ord A}} : List (A × B) -> Map A B :=
   fromListWith λ {old new := new};
 
-toList {A B : Type} : Map A B -> List (A × B)
+toList {A B} : Map A B -> List (A × B)
   | (mkMap s) := map (x in Set.toList s) toPair x;
 
 size {A B} : Map A B -> Nat

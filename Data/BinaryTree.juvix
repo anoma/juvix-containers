@@ -6,19 +6,14 @@ type BinaryTree (A : Type) :=
   | leaf : BinaryTree A
   | node : BinaryTree A -> A -> BinaryTree A -> BinaryTree A;
 
--- fold a tree in depth first order
-fold
-  : {A B : Type}
-    -> (A -> B -> B -> B)
-    -> B
-    -> BinaryTree A
-    -> B
-  | {A} {B} f acc :=
-    let
-      go (acc : B) : BinaryTree A -> B
-        | leaf := acc
-        | (node l a r) := f a (go acc l) (go acc r);
-    in go acc;
+--- fold a tree in depth first order
+fold {A B} (f : A -> B -> B -> B) (acc : B)
+  : BinaryTree A -> B :=
+  let
+    go (acc : B) : BinaryTree A -> B
+      | leaf := acc
+      | (node l a r) := f a (go acc l) (go acc r);
+  in go acc;
 
 length : {A : Type} -> BinaryTree A -> Nat :=
   fold λ {_ l r := 1 + l + r} 0;

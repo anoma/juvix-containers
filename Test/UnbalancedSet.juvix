@@ -13,9 +13,9 @@ tests : List Test :=
         1
         (Set.insert
           3
-          (Set.insert 2 (Set.insert 1 (Set.empty ordNatI))));
+          (Set.insert 2 (Set.insert 1 Set.empty)));
     setInSet : UnbalancedSet (UnbalancedSet Nat) :=
-      Set.insert s (Set.empty (Set.set-ordering ordNatI));
+      Set.insert s Set.empty;
   in [testCase
     "Set.length computes the expected size"
     (assertEqual "unexpected size" (Set.length s) 3); testCase
