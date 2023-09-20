@@ -38,13 +38,14 @@ tail {A} : Queue A -> Maybe (Queue A)
   | (queue nil _) := nothing
   | (queue (_ :: front) back) := just (queue front back);
 
---- 𝒪(n) in the worst-case scenario, but 𝒪(1) amortized
+--- 𝒪(n) worst-case, but 𝒪(1) amortized
+{-# inline: true #-}
 check {A} : Queue A -> Queue A
   | (queue nil back) := queue (reverse back) nil
   | q := q;
 
---- 𝒪(n), but amortized 𝒪(1). Returns the first element and the rest of the ;Queue;.
---- If the ;Queue; is empty then returns ;nothing;.
+--- 𝒪(n) worst-case, but 𝒪(1) amortized. Returns the first element and the
+--  rest of the ;Queue;. If the ;Queue; is empty then returns ;nothing;.
 pop {A} : Queue A -> Maybe (A × Queue A)
   | (queue nil _) := nothing
   | (queue (x :: front) back) :=
@@ -56,7 +57,7 @@ push {A} (x : A) : Queue A -> Queue A
 
 --- 𝒪(n). Adds a list of elements to the end of the ;Queue;.
 pushMany {A} (xs : List A) : Queue A -> Queue A
-  | q := foldr push q xs;
+  | q := for (q' := q) (x in xs) push x q';
 
 --- 𝒪(n). Build a ;Queue; from a ;List;.
 fromList {A} (xs : List A) : Queue A := pushMany xs empty;
@@ -65,7 +66,7 @@ fromList {A} (xs : List A) : Queue A := pushMany xs empty;
 --- The elements are in the same order as they appear in the ;Queue;
 --- (i.e. the first element of the ;Queue; is the first element of the ;List;).
 toList {A} : Queue A -> List A
-  | (queue front back) := back ++ reverse front;
+  | (queue front back) := front ++ reverse back;
 
 --- 𝒪(n). Returns the number of elements in the ;Queue;.
 size {A} : Queue A -> Nat
