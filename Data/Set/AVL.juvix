@@ -43,6 +43,7 @@ type BalanceFactor :=
   | --- Right children is higher.
     LeanRight;
 
+{-# inline: true #-}
 diffFactor {A} : AVLTree A -> Int
   | empty := 0
   | (node _ _ left right) :=
@@ -50,18 +51,18 @@ diffFactor {A} : AVLTree A -> Int
 
 --- 𝒪(1). Computes the balance factor, i.e., the height of the right subtree
 --- minus the height of the left subtree.
-balanceFactor {A} : AVLTree A -> BalanceFactor
-  | n :=
-    let
-      diff : Int := diffFactor n;
-    in if
-      (0 Int.< diff)
-      LeanRight
-      (if (diff Int.< 0) LeanLeft LeanNone);
+balanceFactor {A} (t : AVLTree A) : BalanceFactor :=
+  let
+    diff : Int := diffFactor t;
+  in if
+    (0 Int.< diff)
+    LeanRight
+    (if (diff Int.< 0) LeanLeft LeanNone);
 
 --- 𝒪(1). Helper function for creating a node.
-mknode {A} : A -> AVLTree A -> AVLTree A -> AVLTree A
-  | val l r := node val (1 + max (height l) (height r)) l r;
+mknode {A} (val : A) (l : AVLTree A) (r : AVLTree A)
+  : AVLTree A :=
+  node val (1 + max (height l) (height r)) l r;
 
 --- 𝒪(1). Left rotation.
 rotateLeft {A} : AVLTree A -> AVLTree A
@@ -96,9 +97,11 @@ balance : {A : Type} -> AVLTree A -> AVLTree A
 
 --- 𝒪(log 𝓃). Lookup a member from the ;AVLTree; using a projection function.
 --- Ord A, Ord K and f must be compatible. i.e cmp_k (f a1) (f a2) == cmp_a a1 a2
+{-# specialize: [1] #-}
 lookupWith {A K} {{Ord K}} (f : A -> K) (x : K)
   : AVLTree A -> Maybe A :=
   let
+    {-# specialize-by: [f] #-}
     go : AVLTree A -> Maybe A
       | empty := nothing
       | m@(node y h l r) :=
@@ -118,19 +121,20 @@ member? {A} {{Ord A}} (x : A) : AVLTree A -> Bool :=
 ---
 --- Assumption: Given a1 == a2 then f a1 a2 == a1 == a2
 --- where == comes from Ord a.
-insertWith {a} {{Ord a}}
-  : (a -> a -> a) -> a -> AVLTree a -> AVLTree a
-  | f x :=
-    let
-      go : AVLTree a -> AVLTree a
-        | empty := mknode x empty empty
-        | m@(node y h l r) :=
-          case Ord.cmp x y of {
-            | LT := balance (mknode y (go l) r)
-            | GT := balance (mknode y l (go r))
-            | EQ := node (f y x) h l r
-          };
-    in go;
+{-# specialize: [1] #-}
+insertWith {A} {{Ord A}} (f : A -> A -> A) (x : A)
+  : AVLTree A -> AVLTree A :=
+  let
+    {-# specialize-by: [f] #-}
+    go : AVLTree A -> AVLTree A
+      | empty := mknode x empty empty
+      | m@(node y h l r) :=
+        case Ord.cmp x y of {
+          | LT := balance (mknode y (go l) r)
+          | GT := balance (mknode y l (go r))
+          | EQ := node (f y x) h l r
+        };
+  in go;
 
 --- 𝒪(log 𝓃). Inserts an element into and ;AVLTree;.
 insert {A} {{Ord A}} : A -> AVLTree A -> AVLTree A :=
