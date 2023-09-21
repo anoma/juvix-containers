@@ -1,10 +1,10 @@
 --- This module provides an implementation of a First-In, First-Out (FIFO)
 --- queue based on Okasaki's "Purely Functional Data Structures." Ch.3.
 ---
---- This Okasaki Queue version data structure ensures worst-case constant-time
+--- This Okasaki Queue version data structure ensures amortized constant-time
 --- performance for basic operations such as push, pop, and front.
 ---
---- The OkasakiQueue consists of two lists (front and back) to separate
+--- The Okasaki Queue consists of two lists (front and back) to separate
 --- the concerns of adding and removing elements for ensuring efficient
 --- performance.
 module Data.Queue.Base;
@@ -33,18 +33,20 @@ head {A} : Queue A -> Maybe A
   | (queue nil _) := nothing
   | (queue (x :: _) _) := just x;
 
---- 𝒪(1). Removes the first element from the ;Queue;. If the ;Queue; is empty then returns ;nothing;.
+--- 𝒪(1). Removes the first element from the ;Queue;. If the ;Queue; is empty
+--  then returns ;nothing;.
 tail {A} : Queue A -> Maybe (Queue A)
   | (queue nil _) := nothing
   | (queue (_ :: front) back) := just (queue front back);
 
---- 𝒪(n) in the worst-case scenario, but 𝒪(1) amortized
+--- 𝒪(n) worst-case, but 𝒪(1) amortized
+{-# inline: true #-}
 check {A} : Queue A -> Queue A
   | (queue nil back) := queue (reverse back) nil
   | q := q;
 
---- 𝒪(1). Returns the first element and the rest of the ;Queue;.
---- If the ;Queue; is empty then returns ;nothing;.
+--- 𝒪(n) worst-case, but 𝒪(1) amortized. Returns the first element and the
+--  rest of the ;Queue;. If the ;Queue; is empty then returns ;nothing;.
 pop {A} : Queue A -> Maybe (A × Queue A)
   | (queue nil _) := nothing
   | (queue (x :: front) back) :=
@@ -55,8 +57,9 @@ push {A} (x : A) : Queue A -> Queue A
   | (queue front back) := check (queue front (x :: back));
 
 --- 𝒪(n). Adds a list of elements to the end of the ;Queue;.
-pushMany {A} (xs : List A) : Queue A -> Queue A
-  | q := foldr push q xs;
+pushMany {A} (xs : List A) (q : Queue A) : Queue A :=
+  for (acc := q) (x in xs)
+    push x acc;
 
 --- 𝒪(n). Build a ;Queue; from a ;List;.
 fromList {A} (xs : List A) : Queue A := pushMany xs empty;
@@ -65,7 +68,7 @@ fromList {A} (xs : List A) : Queue A := pushMany xs empty;
 --- The elements are in the same order as they appear in the ;Queue;
 --- (i.e. the first element of the ;Queue; is the first element of the ;List;).
 toList {A} : Queue A -> List A
-  | (queue front back) := back ++ reverse front;
+  | (queue front back) := front ++ reverse back;
 
 --- 𝒪(n). Returns the number of elements in the ;Queue;.
 size {A} : Queue A -> Nat

@@ -33,7 +33,10 @@ s3 : TestDescr := "s3", 6, fromList [5; 4; 3; 2; 1; 0];
 s4 : TestDescr := "s4", 5, fromList [1; 2; 3; 4; 5];
 
 tests : List Test :=
-  concatMap mkTests [s1; s2; s3; s4; s2-delete];
+  [testCase
+      "s1-member"
+      (assertTrue "member? 3 s1" (member? 3 (snd (snd s1))))]
+    ++ concatMap mkTests [s1; s2; s3; s4; s2-delete];
 
 main : IO :=
   printStringLn (pretty (snd (snd s1)))

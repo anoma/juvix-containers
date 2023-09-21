@@ -43,6 +43,7 @@ type BalanceFactor :=
   | --- Right children is higher.
     LeanRight;
 
+{-# inline: true #-}
 diffFactor {A} : AVLTree A -> Int
   | empty := 0
   | (node _ _ left right) :=
@@ -50,18 +51,18 @@ diffFactor {A} : AVLTree A -> Int
 
 --- 𝒪(1). Computes the balance factor, i.e., the height of the right subtree
 --- minus the height of the left subtree.
-balanceFactor {A} : AVLTree A -> BalanceFactor
-  | n :=
-    let
-      diff : Int := diffFactor n;
-    in if
-      (0 Int.< diff)
-      LeanRight
-      (if (diff Int.< 0) LeanLeft LeanNone);
+balanceFactor {A} (t : AVLTree A) : BalanceFactor :=
+  let
+    diff : Int := diffFactor t;
+  in if
+    (0 Int.< diff)
+    LeanRight
+    (if (diff Int.< 0) LeanLeft LeanNone);
 
 --- 𝒪(1). Helper function for creating a node.
-mknode {A} : A -> AVLTree A -> AVLTree A -> AVLTree A
-  | val l r := node val (1 + max (height l) (height r)) l r;
+mknode {A} (val : A) (l : AVLTree A) (r : AVLTree A)
+  : AVLTree A :=
+  node val (1 + max (height l) (height r)) l r;
 
 --- 𝒪(1). Left rotation.
 rotateLeft {A} : AVLTree A -> AVLTree A
@@ -75,7 +76,7 @@ rotateRight {A} : AVLTree A -> AVLTree A
   | n := n;
 
 --- 𝒪(1). Applies local rotations if needed.
-balance : {a : Type} -> AVLTree a -> AVLTree a
+balance : {A : Type} -> AVLTree A -> AVLTree A
   | empty := empty
   | n@(node x h l r) :=
     let
@@ -95,60 +96,61 @@ balance : {a : Type} -> AVLTree a -> AVLTree a
     };
 
 --- 𝒪(log 𝓃). Lookup a member from the ;AVLTree; using a projection function.
---- Ord a, Ord k and f must be compatible. i.e cmp_k (f a1) (f a2) == cmp_a a1 a2
-lookupWith {a k} {{Ord k}}
-  : (a -> k) -> k -> AVLTree a -> Maybe a
-  | f x :=
-    let
-      go : AVLTree a -> Maybe a
-        | empty := nothing
-        | m@(node y h l r) :=
-          case Ord.cmp x (f y) of {
-            | LT := go l
-            | GT := go r
-            | EQ := just y
-          };
-    in go;
+--- Ord A, Ord K and f must be compatible. i.e cmp_k (f a1) (f a2) == cmp_a a1 a2
+{-# specialize: [1] #-}
+lookupWith {A K} {{Ord K}} (f : A -> K) (x : K)
+  : AVLTree A -> Maybe A :=
+  let
+    {-# specialize-by: [f] #-}
+    go : AVLTree A -> Maybe A
+      | empty := nothing
+      | m@(node y h l r) :=
+        case Ord.cmp x (f y) of {
+          | LT := go l
+          | GT := go r
+          | EQ := just y
+        };
+  in go;
 
 --- 𝒪(log 𝓃). Queries whether an element is in an ;AVLTree;.
-member? {a} {{Ord a}} : a -> AVLTree a -> Bool
-  | x := isJust ∘ lookupWith id x;
+member? {A} {{Ord A}} (x : A) : AVLTree A -> Bool :=
+  isJust ∘ lookupWith id x;
 
 --- 𝒪(log 𝓃). Inserts an element into and ;AVLTree; using a function to
 --- deduplicate entries.
 ---
 --- Assumption: Given a1 == a2 then f a1 a2 == a1 == a2
 --- where == comes from Ord a.
-insertWith {a} {{Ord a}}
-  : (a -> a -> a) -> a -> AVLTree a -> AVLTree a
-  | f x :=
-    let
-      go : AVLTree a -> AVLTree a
-        | empty := mknode x empty empty
-        | m@(node y h l r) :=
-          case Ord.cmp x y of {
-            | LT := balance (mknode y (go l) r)
-            | GT := balance (mknode y l (go r))
-            | EQ := node (f y x) h l r
-          };
-    in go;
+{-# specialize: [1] #-}
+insertWith {A} {{Ord A}} (f : A -> A -> A) (x : A)
+  : AVLTree A -> AVLTree A :=
+  let
+    {-# specialize-by: [f] #-}
+    go : AVLTree A -> AVLTree A
+      | empty := mknode x empty empty
+      | m@(node y h l r) :=
+        case Ord.cmp x y of {
+          | LT := balance (mknode y (go l) r)
+          | GT := balance (mknode y l (go r))
+          | EQ := node (f y x) h l r
+        };
+  in go;
 
 --- 𝒪(log 𝓃). Inserts an element into and ;AVLTree;.
-insert {a : Type} {{Ord a}} : a -> AVLTree a -> AVLTree a :=
+insert {A} {{Ord A}} : A -> AVLTree A -> AVLTree A :=
   insertWith (flip const);
 
 --- 𝒪(log 𝓃). Removes an element from an ;AVLTree;.
-delete {a : Type} {{Ord a}} (x : a)
-  : AVLTree a -> AVLTree a :=
+delete {A} {{Ord A}} (x : A) : AVLTree A -> AVLTree A :=
   let
-    deleteMin : AVLTree a -> Maybe (a × AVLTree a)
+    deleteMin : AVLTree A -> Maybe (A × AVLTree A)
       | empty := nothing
       | (node v _ l r) :=
         case deleteMin l of {
           | nothing := just (v, r)
           | just (m, l') := just (m, mknode v l' r)
         };
-    go : AVLTree a -> AVLTree a
+    go : AVLTree A -> AVLTree A
       | empty := empty
       | (node y h l r) :=
         case Ord.cmp x y of {
@@ -167,50 +169,49 @@ delete {a : Type} {{Ord a}} (x : a)
   in go;
 
 --- 𝒪(log 𝓃). Returns the minimum element of the ;AVLTree;.
-lookupMin : {a : Type} -> AVLTree a -> Maybe a
+lookupMin {A} : AVLTree A -> Maybe A
   | empty := nothing
   | (node y _ empty empty) := just y
   | (node _ _ empty r) := lookupMin r
   | (node _ _ l _) := lookupMin l;
 
 --- 𝒪(log 𝓃). Returns the maximum element of the ;AVLTree;.
-lookupMax : {a : Type} -> AVLTree a -> Maybe a
+lookupMax {A} : AVLTree A -> Maybe A
   | empty := nothing
   | (node y _ empty empty) := just y
   | (node _ _ l empty) := lookupMax l
   | (node _ _ _ r) := lookupMax r;
 
 --- 𝒪(𝒹 log 𝓃). Deletes d elements from an ;AVLTree;.
-deleteMany {a : Type} {{Ord a}}
-  : List a -> AVLTree a -> AVLTree a
-  | d t := for (acc := t) (x in d) delete x acc;
+deleteMany {A} {{Ord A}} (d : List A) (t : AVLTree A)
+  : AVLTree A := for (acc := t) (x in d) delete x acc;
 
 --- 𝒪(𝓃). Checks the ;AVLTree; height invariant. I.e. that
 --- every two children do not differ on height by more than 1.
-isBalanced : {a : Type} -> AVLTree a -> Bool
+isBalanced {A} : AVLTree A -> Bool
   | empty := true
   | n@(node _ _ l r) :=
     isBalanced l && isBalanced r && abs (diffFactor n) <= 1;
 
 --- 𝒪(𝓃 log 𝓃). Create an ;AVLTree; from an unsorted ;List;.
-fromList {a : Type} {{Ord a}} (l : List a) : AVLTree a :=
+fromList {A} {{Ord A}} (l : List A) : AVLTree A :=
   for (acc := empty) (x in l)
     insert x acc;
 
 --- 𝒪(𝓃). Returns the number of elements of an ;AVLTree;.
-size : {a : Type} -> AVLTree a -> Nat
+size {A} : AVLTree A -> Nat
   | empty := 0
   | (node _ _ l r) := 1 + size l + size r;
 
 --- 𝒪(𝓃). Returns the elements of an ;AVLTree; in ascending order.
-toList : {a : Type} -> AVLTree a -> List a
+toList {A} : AVLTree A -> List A
   | empty := nil
   | (node x _ l r) := toList l ++ (x :: nil) ++ toList r;
 
 --- 𝒪(𝓃). Formats the tree in a debug friendly format.
-prettyDebug {a : Type} {{Show a}} : AVLTree a -> String :=
+prettyDebug {A} {{Show A}} : AVLTree A -> String :=
   let
-    go : AVLTree a -> String
+    go : AVLTree A -> String
       | empty := "_"
       | n@(node v h l r) :=
         "("
@@ -225,14 +226,14 @@ prettyDebug {a : Type} {{Show a}} : AVLTree a -> String :=
   in go;
 
 --- 𝒪(𝓃).
-toTree : {a : Type} -> AVLTree a -> Maybe (Tree a)
+toTree {A} : AVLTree A -> Maybe (Tree A)
   | empty := nothing
   | (node v _ l r) :=
     just
       (Tree.node v (catMaybes (toTree l :: toTree r :: nil)));
 
 --- Returns the textual representation of an ;AVLTree;.
-pretty {a} {{Show a}} : AVLTree a -> String :=
+pretty {A} {{Show A}} : AVLTree A -> String :=
   maybe "empty" Tree.treeToString ∘ toTree;
 
 instance
