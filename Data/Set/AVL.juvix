@@ -97,11 +97,10 @@ balance : {A : Type} -> AVLTree A -> AVLTree A
 
 --- 𝒪(log 𝓃). Lookup a member from the ;AVLTree; using a projection function.
 --- Ord A, Ord K and f must be compatible. i.e cmp_k (f a1) (f a2) == cmp_a a1 a2
-{-# specialize: [1] #-}
-lookupWith {A K} {{Ord K}} (f : A -> K) (x : K)
+lookupWith {A K} {{o : Ord K}} (f : A -> K) (x : K)
   : AVLTree A -> Maybe A :=
   let
-    {-# specialize-by: [f] #-}
+    {-# specialize-by: [o, f] #-}
     go : AVLTree A -> Maybe A
       | empty := nothing
       | m@(node y h l r) :=
@@ -113,6 +112,7 @@ lookupWith {A K} {{Ord K}} (f : A -> K) (x : K)
   in go;
 
 --- 𝒪(log 𝓃). Queries whether an element is in an ;AVLTree;.
+{-# specialize: [1] #-}
 member? {A} {{Ord A}} (x : A) : AVLTree A -> Bool :=
   isJust ∘ lookupWith id x;
 
@@ -121,11 +121,10 @@ member? {A} {{Ord A}} (x : A) : AVLTree A -> Bool :=
 ---
 --- Assumption: Given a1 == a2 then f a1 a2 == a1 == a2
 --- where == comes from Ord a.
-{-# specialize: [1] #-}
-insertWith {A} {{Ord A}} (f : A -> A -> A) (x : A)
+insertWith {A} {{o : Ord A}} (f : A -> A -> A) (x : A)
   : AVLTree A -> AVLTree A :=
   let
-    {-# specialize-by: [f] #-}
+    {-# specialize-by: [o, f] #-}
     go : AVLTree A -> AVLTree A
       | empty := mknode x empty empty
       | m@(node y h l r) :=
@@ -141,8 +140,9 @@ insert {A} {{Ord A}} : A -> AVLTree A -> AVLTree A :=
   insertWith (flip const);
 
 --- 𝒪(log 𝓃). Removes an element from an ;AVLTree;.
-delete {A} {{Ord A}} (x : A) : AVLTree A -> AVLTree A :=
+delete {A} {{o : Ord A}} (x : A) : AVLTree A -> AVLTree A :=
   let
+    {-# specialize-by: [o] #-}
     deleteMin : AVLTree A -> Maybe (A × AVLTree A)
       | empty := nothing
       | (node v _ l r) :=
@@ -150,6 +150,7 @@ delete {A} {{Ord A}} (x : A) : AVLTree A -> AVLTree A :=
           | nothing := just (v, r)
           | just (m, l') := just (m, mknode v l' r)
         };
+    {-# specialize-by: [o] #-}
     go : AVLTree A -> AVLTree A
       | empty := empty
       | (node y h l r) :=
@@ -183,6 +184,7 @@ lookupMax {A} : AVLTree A -> Maybe A
   | (node _ _ _ r) := lookupMax r;
 
 --- 𝒪(𝒹 log 𝓃). Deletes d elements from an ;AVLTree;.
+{-# specialize: [1] #-}
 deleteMany {A} {{Ord A}} (d : List A) (t : AVLTree A)
   : AVLTree A := for (acc := t) (x in d) delete x acc;
 
@@ -194,6 +196,7 @@ isBalanced {A} : AVLTree A -> Bool
     isBalanced l && isBalanced r && abs (diffFactor n) <= 1;
 
 --- 𝒪(𝓃 log 𝓃). Create an ;AVLTree; from an unsorted ;List;.
+{-# specialize: [1] #-}
 fromList {A} {{Ord A}} (l : List A) : AVLTree A :=
   for (acc := empty) (x in l)
     insert x acc;

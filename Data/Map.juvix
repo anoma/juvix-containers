@@ -38,6 +38,7 @@ type Map A B := mkMap (AVLTree (Binding A B));
 
 empty {A B} : Map A B := mkMap AVL.empty;
 
+{-# specialize: [1, f] #-}
 insertWith {A B} {{Ord A}} (f : B -> B -> B) (k : A) (v : B)
   : Map A B -> Map A B
   | (mkMap s) :=
@@ -50,9 +51,11 @@ insert {A B : Type} {{Ord A}}
   : A -> B -> Map A B -> Map A B :=
   insertWith λ {old new := new};
 
+{-# specialize: [1] #-}
 lookup {A B} {{Ord A}} (k : A) : Map A B -> Maybe B
   | (mkMap s) := mapMaybe value (Set.lookupWith key k s);
 
+{-# specialize: [1, f] #-}
 fromListWith {A B} {{Ord A}} (f : B -> B -> B) (xs : List
   (A × B)) : Map A B :=
   for (acc := empty) (k, v in xs)
