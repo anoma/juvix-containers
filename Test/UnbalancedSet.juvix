@@ -22,7 +22,7 @@ tests : List Test :=
     "Set.to-list computes the expected members"
     (assertEqual
       "unexpected memebrs"
-      (quickSort ordNatI (Set.to-list s))
+      (quickSort (Set.to-list s))
       [1; 2; 3]); testCase
     "Set.member? computes true for expected member"
     (assertTrue

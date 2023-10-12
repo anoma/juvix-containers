@@ -16,10 +16,7 @@ import Stdlib.Data.Int.Ord as Int;
 
 import Data.Tree as Tree open using {Tree; Forest};
 
-import Stdlib.Data.Nat.Ord as Nat open;
-
 import Stdlib.Trait.Eq as Eq open using {Eq};
-
 import Stdlib.Trait.Ord as Ord open using {Ord};
 
 --- A self-balancing binary search tree.
