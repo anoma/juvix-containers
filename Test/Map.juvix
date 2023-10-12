@@ -17,7 +17,7 @@ tests : List Test :=
       | actual expected :=
         assertEqual
           "lists are not equal"
-          (quickSort ordProductI actual)
+          (quickSort actual)
           expected;
   in [testCase
     "Map.lookup missing key"
