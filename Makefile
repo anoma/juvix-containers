@@ -31,10 +31,6 @@ test: build/UnbalancedSet \
 clean-build:
 	@rm -rf build/
 
-.PHONY: clean-deps
-clean-deps:
-	@rm -rf/
-
 .PHONY: clean
-clean: clean-deps clean-build
-
+clean: clean-build
+	@juvix clean
