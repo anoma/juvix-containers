@@ -79,18 +79,18 @@ balance : {A : Type} -> AVLTree A -> AVLTree A
     let
       factor : BalanceFactor := balanceFactor n;
     in case factor of {
-      | LeanRight :=
-        case balanceFactor r of {
-          | LeanLeft := rotateLeft (mknode x l (rotateRight r))
-          | _ := rotateLeft n
-        }
-      | LeanLeft :=
-        case balanceFactor l of {
-          | LeanRight := rotateRight (mknode x (rotateLeft l) r)
-          | _ := rotateRight n
-        }
-      | LeanNone := n
-    };
+         | LeanRight :=
+           case balanceFactor r of {
+             | LeanLeft := rotateLeft (mknode x l (rotateRight r))
+             | _ := rotateLeft n
+           }
+         | LeanLeft :=
+           case balanceFactor l of {
+             | LeanRight := rotateRight (mknode x (rotateLeft l) r)
+             | _ := rotateRight n
+           }
+         | LeanNone := n
+       };
 
 --- 𝒪(log 𝓃). Lookup a member from the ;AVLTree; using a projection function.
 --- Ord A, Ord K and f must be compatible. i.e cmp_k (f a1) (f a2) == cmp_a a1 a2
