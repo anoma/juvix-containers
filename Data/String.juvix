@@ -1,6 +1,0 @@
-module Data.String;
-
-import Stdlib.Prelude open;
-import Stdlib.Data.String.Ord open;
-
-null? (s : String) : Bool := s == "";
