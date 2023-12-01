@@ -1,7 +1,7 @@
 --- N-Ary trees with pretty printing.
 module Data.Tree;
 
-import Prelude open;
+import ContainersPrelude open;
 
 --- A ;List; of trees.
 Forest (A : Type) : Type := List (Tree A);
