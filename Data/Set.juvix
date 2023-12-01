@@ -1,10 +1,8 @@
 module Data.Set;
 
-import Stdlib.Prelude open;
 import Data.Set.AVL open public;
 
 import Stdlib.Trait.Eq as Eq open using {Eq};
-
 import Stdlib.Trait.Ord as Ord open using {Ord};
 
 syntax alias Set := AVLTree;

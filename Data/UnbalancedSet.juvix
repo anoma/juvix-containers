@@ -1,8 +1,8 @@
 module Data.UnbalancedSet;
 
-import Stdlib.Prelude open hiding {length};
+import Prelude open;
 
-import Stdlib.Trait.Ord as Ord;
+import Stdlib.Trait.Ord as Ord open using {Ord; mkOrd; module Ord};
 
 import Data.BinaryTree as Tree;
 open Tree using {BinaryTree; leaf; node};

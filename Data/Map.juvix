@@ -1,8 +1,7 @@
 module Data.Map;
 
-import Stdlib.Prelude open hiding {length};
+import Prelude open;
 
-import Stdlib.Data.Nat.Ord as Nat;
 import Data.Set as Set;
 open Set using {Set};
 
@@ -10,12 +9,7 @@ import Data.Set.AVL as AVL;
 open AVL using {AVLTree};
 
 import Data.BinaryTree as Tree;
-
 import Data.Tmp open;
-
-import Stdlib.Trait.Eq as Eq open using {Eq};
-
-import Stdlib.Trait.Ord as Ord open using {Ord};
 
 type Binding A B := binding A B;
 

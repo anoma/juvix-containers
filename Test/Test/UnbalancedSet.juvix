@@ -1,6 +1,8 @@
 module Test.UnbalancedSet;
 
-import Stdlib.Prelude open;
+import Juvix.Builtin.V1 open;
+import Stdlib.Data.List open using {quickSort};
+import Stdlib.System.IO.Base open;
 import Test.JuvixUnit open;
 
 import Data.UnbalancedSet as Set;
