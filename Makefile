@@ -1,35 +1,18 @@
-
 all: test
 
-build/UnbalancedSet: $(wildcard ./**/*.juvix)
+build/Main: $(wildcard ./**/*.juvix)
 	@mkdir -p build/
-	juvix compile Test/UnbalancedSet.juvix -o build/UnbalancedSet
-
-build/Map: $(wildcard ./**/*.juvix)
-	@mkdir -p build/
-	juvix compile Test/Map.juvix -o build/Map
-
-build/AVL: $(shell find . -name '*.juvix')
-	@mkdir -p build/
-	juvix compile Test/AVL.juvix -o build/AVL
-
-build/Queue: $(shell find . -name '*.juvix')
-	@mkdir -p build/
-	juvix compile Test/Queue.juvix -o build/Queue
+	juvix compile test/Main.juvix -o build/Main
 
 .PHONY : test
-test: build/UnbalancedSet \
-		build/Map \
-		build/AVL \
-		build/Queue
-	./build/UnbalancedSet
-	./build/Map
-	./build/AVL
-	./build/Queue
+test: build/Main
+	./build/Main
 
 .PHONY: clean-build
 clean-build:
 	@rm -rf build/
+	@juvix clean
+	@(cd test && exec juvix clean)
 
 .PHONY: clean
 clean: clean-build

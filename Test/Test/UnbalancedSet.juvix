@@ -38,4 +38,6 @@ tests : List Test :=
        (assertEqual "unexpected size" (Set.length setInSet) 1)
      ];
 
-main : IO := runTestSuite (testSuite "Set" tests);
+suite : TestSuite := testSuite "UnbalancedSet" tests;
+
+main : IO := runTestSuite suite;

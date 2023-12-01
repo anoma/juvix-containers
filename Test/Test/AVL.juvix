@@ -42,7 +42,9 @@ tests : List Test :=
   ]
     ++ concatMap mkTests [s1; s2; s3; s4; s2-delete];
 
+suite : TestSuite := testSuite "AVL Set" tests;
+
 main : IO :=
   printStringLn (pretty (snd (snd s1)))
     >> printStringLn (prettyDebug (snd (snd s1)))
-    >> runTestSuite (testSuite "AVL Set" tests);
+    >> runTestSuite suite;

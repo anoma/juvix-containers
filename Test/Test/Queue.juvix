@@ -53,4 +53,6 @@ tests : List Test :=
          ((just ∘ fromList) [2; 3]))
      ];
 
-main : IO := runTestSuite $ testSuite "Queue" tests;
+suite : TestSuite := testSuite "Queue" tests;
+
+main : IO := runTestSuite suite;
