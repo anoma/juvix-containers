@@ -2,8 +2,6 @@ module Data.UnbalancedSet;
 
 import Stdlib.Prelude open hiding {length};
 
-import Test.JuvixUnit open;
-
 import Stdlib.Trait.Ord as Ord;
 
 import Data.BinaryTree as Tree;

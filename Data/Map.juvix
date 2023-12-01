@@ -17,8 +17,6 @@ import Stdlib.Trait.Eq as Eq open using {Eq};
 
 import Stdlib.Trait.Ord as Ord open using {Ord};
 
-import Test.JuvixUnit open;
-
 type Binding A B := binding A B;
 
 key {A B} : Binding A B -> A
