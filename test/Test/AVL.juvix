@@ -1,8 +1,13 @@
 module Test.AVL;
 
 import Test.JuvixUnit open;
+import Juvix.Builtin.V1 open;
+import Stdlib.System.IO.Base open;
+import Stdlib.System.IO.String open;
+import Stdlib.Data.Product open;
+import Stdlib.Data.List.Base open;
+
 import Data.Set.AVL open;
-import Stdlib.Prelude open;
 
 --- Test for size and balance.
 mkTests : String × Nat × AVLTree Nat -> List Test
@@ -42,7 +47,9 @@ tests : List Test :=
   ]
     ++ concatMap mkTests [s1; s2; s3; s4; s2-delete];
 
+suite : TestSuite := testSuite "AVL Set" tests;
+
 main : IO :=
   printStringLn (pretty (snd (snd s1)))
     >> printStringLn (prettyDebug (snd (snd s1)))
-    >> runTestSuite (testSuite "AVL Set" tests);
+    >> runTestSuite suite;

@@ -8,16 +8,10 @@
 --- constructing, modifying, and querying AVL trees.
 module Data.Set.AVL;
 
-import Stdlib.Prelude open;
+import Prelude open;
 import Data.Tmp open;
 
-import Stdlib.Data.Int as Int;
-import Stdlib.Data.Int.Ord as Int;
-
 import Data.Tree as Tree open using {Tree; Forest};
-
-import Stdlib.Trait.Eq as Eq open using {Eq};
-import Stdlib.Trait.Ord as Ord open using {Ord};
 
 --- A self-balancing binary search tree.
 type AVLTree (A : Type) :=
@@ -44,7 +38,7 @@ type BalanceFactor :=
 diffFactor {A} : AVLTree A -> Int
   | empty := 0
   | (node _ _ left right) :=
-    Int.intSubNat (height right) (height left);
+    intSubNat (height right) (height left);
 
 --- 𝒪(1). Computes the balance factor, i.e., the height of the right subtree
 --- minus the height of the left subtree.
@@ -52,9 +46,9 @@ balanceFactor {A} (t : AVLTree A) : BalanceFactor :=
   let
     diff : Int := diffFactor t;
   in if
-    (0 Int.< diff)
+    (0 < diff)
     LeanRight
-    (if (diff Int.< 0) LeanLeft LeanNone);
+    (if (diff < 0) LeanLeft LeanNone);
 
 --- 𝒪(1). Helper function for creating a node.
 mknode {A} (val : A) (l : AVLTree A) (r : AVLTree A)
@@ -217,7 +211,7 @@ prettyDebug {A} {{Show A}} : AVLTree A -> String :=
         "("
           ++str go l
           ++str " h"
-          ++str Int.intToString (diffFactor n)
+          ++str Show.show (diffFactor n)
           ++str " "
           ++str Show.show v
           ++str " "
@@ -238,7 +232,7 @@ pretty {A} {{Show A}} : AVLTree A -> String :=
 
 instance
 eqAVLTreeI {A} {{Eq A}} : Eq (AVLTree A) :=
-  mkEq (Eq.eq on toList);
+  mkEq ((==) on toList);
 
 instance
 ordAVLTreeI {A} {{Ord A}} : Ord (AVLTree A) :=

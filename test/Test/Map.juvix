@@ -1,6 +1,10 @@
 module Test.Map;
 
-import Stdlib.Prelude open;
+import Juvix.Builtin.V1 open;
+import Stdlib.System.IO.Base open;
+import Stdlib.Data.Product open;
+import Stdlib.Data.List open using {quickSort};
+import Stdlib.Function open;
 import Test.JuvixUnit open;
 
 import Data.Map as Map;
@@ -58,4 +62,6 @@ tests : List Test :=
          [1, 1; 2, 2])
      ];
 
-main : IO := runTestSuite (testSuite "Map" tests);
+suite : TestSuite := testSuite "Map" tests;
+
+main : IO := runTestSuite suite;

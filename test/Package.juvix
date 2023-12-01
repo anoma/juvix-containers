@@ -1,0 +1,12 @@
+module Package;
+
+import PackageDescription.V2 open;
+
+package : Package :=
+  defaultPackage
+    {name := "containers-tests";
+     main := just "Main.juvix";
+     dependencies := [ github "anoma" "juvix-stdlib" "v0.1.0"
+                     ; github "anoma" "juvix-test" "v0.8.0"
+                     ; path "../"
+                     ]};

@@ -1,9 +1,11 @@
 module Test.Queue;
 
-import Stdlib.Prelude open hiding {head; tail};
-import Stdlib.Data.Nat open;
-import Stdlib.Data.Maybe open;
+import Juvix.Builtin.V1 open;
+import Stdlib.System.IO.Base open;
+import Stdlib.Function open;
+import Stdlib.Data.Product open;
 import Test.JuvixUnit open;
+
 import Data.Queue open;
 
 q : Queue Nat := empty;
@@ -53,4 +55,6 @@ tests : List Test :=
          ((just ∘ fromList) [2; 3]))
      ];
 
-main : IO := runTestSuite $ testSuite "Queue" tests;
+suite : TestSuite := testSuite "Queue" tests;
+
+main : IO := runTestSuite suite;

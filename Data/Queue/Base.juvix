@@ -9,13 +9,7 @@
 --- performance.
 module Data.Queue.Base;
 
-import Stdlib.Prelude open;
-
-import Stdlib.Trait.Eq as Eq open using {Eq};
-
-import Stdlib.Trait.Ord as Ord open using {Ord};
-
-import Stdlib.Trait.Show as Show open using {Show};
+import Prelude open;
 
 --- A first-in-first-out data structure
 type Queue (A : Type) := queue (List A) (List A);
@@ -76,7 +70,7 @@ size {A} : Queue A -> Nat
 
 instance
 eqQueueI {A} {{Eq A}} : Eq (Queue A) :=
-  mkEq (Eq.eq on toList);
+  mkEq ((==) on toList);
 
 instance
 showQueueI {A} {{Show A}} : Show (Queue A) :=
