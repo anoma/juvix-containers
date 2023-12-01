@@ -9,7 +9,7 @@
 --- performance.
 module Data.Queue.Base;
 
-import Prelude open;
+import ContainersPrelude open;
 
 --- A first-in-first-out data structure
 type Queue (A : Type) := queue (List A) (List A);

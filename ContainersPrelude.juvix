@@ -1,4 +1,4 @@
-module Prelude;
+module ContainersPrelude;
 
 import Juvix.Builtin.V1 open public;
 import Stdlib.Data.String.Base open public;
