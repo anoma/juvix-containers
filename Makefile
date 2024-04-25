@@ -2,7 +2,7 @@ all: test
 
 build/Main: $(wildcard ./**/*.juvix)
 	@mkdir -p build/
-	juvix compile test/Main.juvix -o build/Main
+	juvix compile native test/Main.juvix -o build/Main
 
 .PHONY : test
 test: build/Main
