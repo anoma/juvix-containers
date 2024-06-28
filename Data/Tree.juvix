@@ -26,7 +26,7 @@ drawForest {A} {{Show A}} : Forest A -> List String
     "|" :: shift "+- " "|  " (draw h) ++ drawForest hs;
 
 treeToString {A} {{Show A}} : Tree A -> String :=
-  unlines ∘ draw;
+  draw >> unlines;
 
 forestToString {A} {{Show A}} : Forest A -> String :=
-  unlines ∘ drawForest;
+  drawForest >> unlines;

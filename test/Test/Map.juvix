@@ -2,7 +2,7 @@ module Test.Map;
 
 import Juvix.Builtin.V1 open;
 import Stdlib.System.IO.Base open;
-import Stdlib.Data.Product open;
+import Stdlib.Data.Pair open;
 import Stdlib.Data.List open using {quickSort};
 import Stdlib.Function open;
 import Test.JuvixUnit open;
@@ -17,7 +17,7 @@ tests : List Test :=
     m2 : Map Nat Nat :=
       Map.insert 3 4 (Map.insert 1 2 Map.empty);
     assertEqListPair
-      : List (Nat × Nat) -> List (Nat × Nat) -> Assertion
+      : List (Pair Nat Nat) -> List (Pair Nat Nat) -> Assertion
       | actual expected :=
         assertEqual
           "lists are not equal"

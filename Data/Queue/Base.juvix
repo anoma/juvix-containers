@@ -41,7 +41,7 @@ check {A} : Queue A -> Queue A
 
 --- 𝒪(n) worst-case, but 𝒪(1) amortized. Returns the first element and the
 --  rest of the ;Queue;. If the ;Queue; is empty then returns ;nothing;.
-pop {A} : Queue A -> Maybe (A × Queue A)
+pop {A} : Queue A -> Maybe (Pair A (Queue A))
   | (queue nil _) := nothing
   | (queue (x :: front) back) :=
     just (x, check (queue front back));
@@ -74,7 +74,7 @@ eqQueueI {A} {{Eq A}} : Eq (Queue A) :=
 
 instance
 showQueueI {A} {{Show A}} : Show (Queue A) :=
-  mkShow (Show.show ∘ toList);
+  mkShow (toList >> Show.show);
 
 instance
 ordQueueI {A} {{Ord A}} : Ord (Queue A) :=

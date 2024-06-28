@@ -7,4 +7,8 @@ import Test.Map open using {suite as mapSuite};
 import Test.Queue open using {suite as queueSuite};
 import Test.UnbalancedSet open using {suite as unbalancedSetSuite};
 
-main : IO := runTestSuite avlSuite >> runTestSuite mapSuite >> runTestSuite queueSuite >> runTestSuite unbalancedSetSuite;
+main : IO :=
+  runTestSuite avlSuite
+    >>> runTestSuite mapSuite
+    >>> runTestSuite queueSuite
+    >>> runTestSuite unbalancedSetSuite;

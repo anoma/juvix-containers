@@ -2,7 +2,7 @@ module ContainersPrelude;
 
 import Juvix.Builtin.V1 open public;
 import Stdlib.Data.String.Base open public;
-import Stdlib.Data.Product open public;
+import Stdlib.Data.Pair open public;
 import Stdlib.Data.List.Base open public;
 import Stdlib.System.IO.Base open public;
 import Stdlib.System.IO.String open public;

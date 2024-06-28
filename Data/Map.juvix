@@ -19,7 +19,7 @@ key {A B} : Binding A B -> A
 value {A B} : Binding A B -> B
   | (binding _ b) := b;
 
-toPair {A B} : Binding A B -> A × B
+toPair {A B} : Binding A B -> Pair A B
   | (binding a b) := a, b;
 
 instance
@@ -49,14 +49,14 @@ lookup {A B} {{Ord A}} (k : A) : Map A B -> Maybe B
 
 {-# specialize: [1, f] #-}
 fromListWith {A B} {{Ord A}} (f : B -> B -> B) (xs : List
-  (A × B)) : Map A B :=
+  (Pair A B)) : Map A B :=
   for (acc := empty) (k, v in xs)
     insertWith f k v acc;
 
-fromList {A B} {{Ord A}} : List (A × B) -> Map A B :=
+fromList {A B} {{Ord A}} : List (Pair A B) -> Map A B :=
   fromListWith λ {old new := new};
 
-toList {A B} : Map A B -> List (A × B)
+toList {A B} : Map A B -> List (Pair A B)
   | (mkMap s) := map (x in Set.toList s) toPair x;
 
 size {A B} : Map A B -> Nat
