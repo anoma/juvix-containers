@@ -6,7 +6,7 @@ package : Package :=
   defaultPackage
     {name := "containers-tests";
      main := just "Main.juvix";
-     dependencies := [ github "anoma" "juvix-stdlib" "00f6f503dbc2cfa72bd469fb8ce7edd0e9730639"
-                     ; github "anoma" "juvix-test" "73515597abed1c4180b2172a4f7f7cfe272712f1"
+     dependencies := [ github "anoma" "juvix-stdlib" "v0.4.0"
+                     ; github "anoma" "juvix-test" "v0.11.0"
                      ; path "../"
                      ]};
