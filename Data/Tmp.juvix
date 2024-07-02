@@ -2,11 +2,12 @@
 module Data.Tmp;
 
 import ContainersPrelude open;
+import Stdlib.Trait open;
 
 printNatListLn : List Nat → IO
   | nil := printStringLn "nil"
   | (x :: xs) :=
-    printNat x >> printString " :: " >> printNatListLn xs;
+    printNat x >>> printString " :: " >>> printNatListLn xs;
 
 mapMaybe {A B} (f : A -> B) : Maybe A -> Maybe B
   | nothing := nothing

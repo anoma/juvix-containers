@@ -4,13 +4,13 @@ import Test.JuvixUnit open;
 import Juvix.Builtin.V1 open;
 import Stdlib.System.IO.Base open;
 import Stdlib.System.IO.String open;
-import Stdlib.Data.Product open;
+import Stdlib.Data.Pair open;
 import Stdlib.Data.List.Base open;
 
 import Data.Set.AVL open;
 
 --- Test for size and balance.
-mkTests : String × Nat × AVLTree Nat -> List Test
+mkTests : Pair String (Pair Nat (AVLTree Nat)) -> List Test
   | (title, len, s) :=
     let
       mkTitle : String -> String
@@ -25,7 +25,7 @@ mkTests : String × Nat × AVLTree Nat -> List Test
          (assertTrue balanceMsg (isBalanced s))
        ];
 
-TestDescr : Type := String × Nat × AVLTree Nat;
+TestDescr : Type := Pair String (Pair Nat (AVLTree Nat));
 
 s1 : TestDescr := "s1", 5, fromList [1; 2; 8; 3; 3; 2; 9];
 
@@ -51,5 +51,5 @@ suite : TestSuite := testSuite "AVL Set" tests;
 
 main : IO :=
   printStringLn (pretty (snd (snd s1)))
-    >> printStringLn (prettyDebug (snd (snd s1)))
-    >> runTestSuite suite;
+    >>> printStringLn (prettyDebug (snd (snd s1)))
+    >>> runTestSuite suite;

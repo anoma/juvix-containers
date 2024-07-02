@@ -3,7 +3,7 @@ module Test.Queue;
 import Juvix.Builtin.V1 open;
 import Stdlib.System.IO.Base open;
 import Stdlib.Function open;
-import Stdlib.Data.Product open;
+import Stdlib.Data.Pair open;
 import Test.JuvixUnit open;
 
 import Data.Queue open;
@@ -39,7 +39,7 @@ tests : List Test :=
        "Queue.fromList composes with toList should be the identity"
        (assertEqual
          "fromList . toList should be the identity"
-         (fromList ∘ toList $ q3)
+         (toList >> fromList <| q3)
          q3)
      ; testCase
        "Queue.pop should remove first element"
@@ -52,7 +52,7 @@ tests : List Test :=
        (assertEqual
          "tail of queue q3"
          (tail q3)
-         ((just ∘ fromList) [2; 3]))
+         ((fromList >> just) [2; 3]))
      ];
 
 suite : TestSuite := testSuite "Queue" tests;

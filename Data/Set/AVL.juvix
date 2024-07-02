@@ -105,7 +105,7 @@ lookupWith {A K} {{o : Ord K}} (f : A -> K) (x : K)
 --- 𝒪(log 𝓃). Queries whether an element is in an ;AVLTree;.
 {-# specialize: [1] #-}
 member? {A} {{Ord A}} (x : A) : AVLTree A -> Bool :=
-  isJust ∘ lookupWith id x;
+  lookupWith id x >> isJust;
 
 --- 𝒪(log 𝓃). Inserts an element into and ;AVLTree; using a function to
 --- deduplicate entries.
@@ -134,7 +134,7 @@ insert {A} {{Ord A}} : A -> AVLTree A -> AVLTree A :=
 delete {A} {{o : Ord A}} (x : A) : AVLTree A -> AVLTree A :=
   let
     {-# specialize-by: [o] #-}
-    deleteMin : AVLTree A -> Maybe (A × AVLTree A)
+    deleteMin : AVLTree A -> Maybe (Pair A (AVLTree A))
       | empty := nothing
       | (node v _ l r) :=
         case deleteMin l of {
@@ -228,7 +228,7 @@ toTree {A} : AVLTree A -> Maybe (Tree A)
 
 --- Returns the textual representation of an ;AVLTree;.
 pretty {A} {{Show A}} : AVLTree A -> String :=
-  maybe "empty" Tree.treeToString ∘ toTree;
+  toTree >> maybe "empty" Tree.treeToString;
 
 instance
 eqAVLTreeI {A} {{Eq A}} : Eq (AVLTree A) :=
