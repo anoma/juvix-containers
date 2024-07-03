@@ -45,10 +45,10 @@ diffFactor {A} : AVLTree A -> Int
 balanceFactor {A} (t : AVLTree A) : BalanceFactor :=
   let
     diff : Int := diffFactor t;
-  in if
+  in ite
     (0 < diff)
     LeanRight
-    (if (diff < 0) LeanLeft LeanNone);
+    (ite (diff < 0) LeanLeft LeanNone);
 
 --- 𝒪(1). Helper function for creating a node.
 mknode {A} (val : A) (l : AVLTree A) (r : AVLTree A)
