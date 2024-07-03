@@ -23,6 +23,6 @@ dependencies:
   dependencies:
   - git:
       name: anoma_juvix-stdlib
-      ref: 00f6f503dbc2cfa72bd469fb8ce7edd0e9730639
+      ref: 89a5960fb8a29291e9271986b98ca7b1edf4031b
       url: https://github.com/anoma/juvix-stdlib
     dependencies: []
