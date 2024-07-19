@@ -7,11 +7,9 @@ import Stdlib.Trait.Ord as Ord open using {Ord; mkOrd; module Ord};
 import Data.BinaryTree as Tree;
 open Tree using {BinaryTree; leaf; node};
 
-type UnbalancedSet (A : Type) :=
-  unbalancedSet : Ord A -> BinaryTree A -> UnbalancedSet A;
+type UnbalancedSet (A : Type) := unbalancedSet : Ord A -> BinaryTree A -> UnbalancedSet A;
 
-empty {A} {{o : Ord A}} : UnbalancedSet A :=
-  unbalancedSet o leaf;
+empty {A} {{o : Ord A}} : UnbalancedSet A := unbalancedSet o leaf;
 
 member? {A} (x : A) : UnbalancedSet A -> Bool
   | (unbalancedSet o@(mkOrd cmp) t) :=
@@ -19,11 +17,10 @@ member? {A} (x : A) : UnbalancedSet A -> Bool
       go : BinaryTree A -> Bool
         | leaf := false
         | (node l y r) :=
-          case cmp x y of {
+          case cmp x y of
             | Ord.LT := go l
             | Ord.GT := go r
-            | Ord.EQ := true
-          };
+            | Ord.EQ := true;
     in go t;
 
 insert {A} (x : A) : UnbalancedSet A -> UnbalancedSet A
@@ -32,11 +29,10 @@ insert {A} (x : A) : UnbalancedSet A -> UnbalancedSet A
       go : BinaryTree A -> BinaryTree A
         | leaf := node leaf x leaf
         | n@(node l y r) :=
-          case cmp x y of {
+          case cmp x y of
             | Ord.LT := node (go l) y r
             | Ord.EQ := n
-            | Ord.GT := node l y (go r)
-          };
+            | Ord.GT := node l y (go r);
     in unbalancedSet o (go t);
 
 length {A} : UnbalancedSet A -> Nat
