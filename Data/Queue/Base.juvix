@@ -43,17 +43,14 @@ check {A} : Queue A -> Queue A
 --  rest of the ;Queue;. If the ;Queue; is empty then returns ;nothing;.
 pop {A} : Queue A -> Maybe (Pair A (Queue A))
   | (queue nil _) := nothing
-  | (queue (x :: front) back) :=
-    just (x, check (queue front back));
+  | (queue (x :: front) back) := just (x, check (queue front back));
 
 --- 𝒪(1). Adds an element to the end of the ;Queue;.
 push {A} (x : A) : Queue A -> Queue A
   | (queue front back) := check (queue front (x :: back));
 
 --- 𝒪(n). Adds a list of elements to the end of the ;Queue;.
-pushMany {A} (xs : List A) (q : Queue A) : Queue A :=
-  for (acc := q) (x in xs)
-    push x acc;
+pushMany {A} (xs : List A) (q : Queue A) : Queue A := for (acc := q) (x in xs) push x acc;
 
 --- 𝒪(n). Build a ;Queue; from a ;List;.
 fromList {A} (xs : List A) : Queue A := pushMany xs empty;
@@ -69,13 +66,10 @@ size {A} : Queue A -> Nat
   | (queue front back) := length front + length back;
 
 instance
-eqQueueI {A} {{Eq A}} : Eq (Queue A) :=
-  mkEq ((==) on toList);
+eqQueueI {A} {{Eq A}} : Eq (Queue A) := mkEq ((==) on toList);
 
 instance
-showQueueI {A} {{Show A}} : Show (Queue A) :=
-  mkShow (toList >> Show.show);
+showQueueI {A} {{Show A}} : Show (Queue A) := mkShow (toList >> Show.show);
 
 instance
-ordQueueI {A} {{Ord A}} : Ord (Queue A) :=
-  mkOrd (Ord.cmp on toList);
+ordQueueI {A} {{Ord A}} : Ord (Queue A) := mkOrd (Ord.cmp on toList);

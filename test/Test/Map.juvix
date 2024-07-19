@@ -12,22 +12,13 @@ open Map using {Map};
 
 tests : List Test :=
   let
-    m : Map Nat String :=
-      Map.insert 2 "two" (Map.insert 1 "one" Map.empty);
-    m2 : Map Nat Nat :=
-      Map.insert 3 4 (Map.insert 1 2 Map.empty);
-    assertEqListPair
-      : List (Pair Nat Nat) -> List (Pair Nat Nat) -> Assertion
-      | actual expected :=
-        assertEqual
-          "lists are not equal"
-          (quickSort actual)
-          expected;
+    m : Map Nat String := Map.insert 2 "two" (Map.insert 1 "one" Map.empty);
+    m2 : Map Nat Nat := Map.insert 3 4 (Map.insert 1 2 Map.empty);
+    assertEqListPair : List (Pair Nat Nat) -> List (Pair Nat Nat) -> Assertion
+      | actual expected := assertEqual "lists are not equal" (quickSort actual) expected;
   in [ testCase
        "Map.lookup missing key"
-       (assertNothing
-         (const "found a key expected to be missing")
-         (Map.lookup 10 m))
+       (assertNothing (const "found a key expected to be missing") (Map.lookup 10 m))
      ; testCase
        "Map.lookup available key"
        (assertJust "could not find expected key" (Map.lookup 2 m))
@@ -39,27 +30,19 @@ tests : List Test :=
        (assertEqListPair (Map.toList m2) [1, 2; 3, 4])
      ; testCase
        "Map.insert-with replaces duplicates using merge function"
-       (assertEqListPair
-         (Map.toList (Map.insertWith (+) 1 3 m2))
-         [1, 5; 3, 4])
+       (assertEqListPair (Map.toList (Map.insertWith (+) 1 3 m2)) [1, 5; 3, 4])
      ; testCase
        "Map.fromListWith de-duplicates using merge function"
-       (assertEqListPair
-         (Map.toList (Map.fromListWith (+) [1, 1; 1, 2]))
-         [1, 3])
+       (assertEqListPair (Map.toList (Map.fromListWith (+) [1, 1; 1, 2])) [1, 3])
      ; testCase
        "Map.fromList can be used to create the empty Map"
        (assertEqListPair (Map.toList (Map.fromList nil)) (nil))
      ; testCase
        "Map.fromList overwrites duplicates"
-       (assertEqListPair
-         (Map.toList (Map.fromList [1, 1; 1, 2]))
-         [1, 2])
+       (assertEqListPair (Map.toList (Map.fromList [1, 1; 1, 2])) [1, 2])
      ; testCase
        "Map.fromList distinct keys"
-       (assertEqListPair
-         (Map.toList (Map.fromList [1, 1; 2, 2]))
-         [1, 1; 2, 2])
+       (assertEqListPair (Map.toList (Map.fromList [1, 1; 2, 2])) [1, 1; 2, 2])
      ];
 
 suite : TestSuite := testSuite "Map" tests;

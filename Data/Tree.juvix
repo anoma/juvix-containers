@@ -10,8 +10,7 @@ Forest (A : Type) : Type := List (Tree A);
 positive
 type Tree (A : Type) := node A (List (Tree A));
 
-shift (first other : String) (xs : List String)
-  : List String :=
+shift (first other : String) (xs : List String) : List String :=
   zipWith (++str) (first :: replicate (length xs) other) xs;
 
 terminating
@@ -22,11 +21,8 @@ terminating
 drawForest {A} {{Show A}} : Forest A -> List String
   | [] := []
   | [h] := "|" :: shift "`- " "   " (draw h)
-  | (h :: hs) :=
-    "|" :: shift "+- " "|  " (draw h) ++ drawForest hs;
+  | (h :: hs) := "|" :: shift "+- " "|  " (draw h) ++ drawForest hs;
 
-treeToString {A} {{Show A}} : Tree A -> String :=
-  draw >> unlines;
+treeToString {A} {{Show A}} : Tree A -> String := draw >> unlines;
 
-forestToString {A} {{Show A}} : Forest A -> String :=
-  drawForest >> unlines;
+forestToString {A} {{Show A}} : Forest A -> String := drawForest >> unlines;
