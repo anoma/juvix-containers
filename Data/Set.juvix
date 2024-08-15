@@ -10,3 +10,5 @@ syntax alias Set := AVLTree;
 eqSetI {A} {{Eq A}} : Eq (Set A) := eqAVLTreeI;
 
 ordSetI {A} {{Ord A}} : Ord (Set A) := ordAVLTreeI;
+
+import Stdlib.Data.List open;

@@ -1,6 +1,6 @@
 module Data.Map;
 
-import ContainersPrelude open;
+import Stdlib.Prelude open;
 
 import Data.Set as Set;
 open Set using {Set};
@@ -42,7 +42,7 @@ insert {A B : Type} {{Ord A}} : A -> B -> Map A B -> Map A B := insertWith λ {o
 
 {-# specialize: [1] #-}
 lookup {A B} {{Ord A}} (k : A) : Map A B -> Maybe B
-  | (mkMap s) := mapMaybe value (Set.lookupWith key k s);
+  | (mkMap s) := map value (Set.lookupWith key k s);
 
 {-# specialize: [1, f] #-}
 fromListWith {A B} {{Ord A}} (f : B -> B -> B) (xs : List (Pair A B)) : Map A B :=
@@ -56,6 +56,9 @@ toList {A B} : Map A B -> List (Pair A B)
 
 size {A B} : Map A B -> Nat
   | (mkMap s) := Set.size s;
+
+delete {A B} {{Ord A}} (k : A) : Map A B -> Map A B
+  | m@(mkMap s) := Set.deleteWith key k s |> mkMap;
 
 instance
 eqMapI {A B} {{Eq A}} {{Eq B}} : Eq (Map A B) := mkEq (Eq.eq on toList);
