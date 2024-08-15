@@ -1,6 +1,6 @@
 module Data.UnbalancedSet;
 
-import ContainersPrelude open;
+import Stdlib.Prelude open;
 
 import Stdlib.Trait.Ord as Ord open using {Ord; mkOrd; module Ord};
 

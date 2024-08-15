@@ -8,7 +8,7 @@
 --- constructing, modifying, and querying AVL trees.
 module Data.Set.AVL;
 
-import ContainersPrelude open;
+import Stdlib.Prelude open;
 import Data.Tmp open;
 
 import Data.Tree as Tree open using {Tree; Forest};
