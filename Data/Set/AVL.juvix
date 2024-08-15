@@ -194,6 +194,17 @@ toList {A} : AVLTree A -> List A
   | empty := nil
   | (node x _ l r) := toList l ++ (x :: nil) ++ toList r;
 
+--- 𝒪(𝓃). Returns an ;AVLTree; containing elements that are members of both ;AVLTree;s.
+intersection {A} {{Ord A}} (s1 s2 : AVLTree A) : AVLTree A :=
+  toList s1 |> filter \ {x := member? x s2} |> fromList;
+
+--- 𝒪(𝓃). Returns an ;AVLTree; containing elements that are members of the first but not the second ;AVLTree;.
+difference {A} {{Ord A}} (s1 s2 : AVLTree A) : AVLTree A :=
+  toList s1 |> filter \ {x := not (member? x s2)} |> fromList;
+
+--- 𝒪(𝓃). Returns an ;AVLTree; containing elements that are members of either the first or second ;AVLTree;.
+union {A} {{Ord A}} (s1 s2 : AVLTree A) : AVLTree A := fromList (toList s1 ++ toList s2);
+
 --- 𝒪(𝓃). Formats the tree in a debug friendly format.
 prettyDebug {A} {{Show A}} : AVLTree A -> String :=
   let
@@ -225,8 +236,16 @@ eqAVLTreeI {A} {{Eq A}} : Eq (AVLTree A) := mkEq ((==) on toList);
 instance
 ordAVLTreeI {A} {{Ord A}} : Ord (AVLTree A) := mkOrd (Ord.cmp on toList);
 
-intersection {A} {{Ord A}} (s1 s2 : AVLTree A) : AVLTree A :=
-  toList s1 |> filter \ {x := member? x s2} |> fromList;
+{-# specialize: true, inline: case #-}
+instance
+polymorphicFoldableAVLTreeI : Polymorphic.Foldable AVLTree :=
+  Polymorphic.mkFoldable@{
+    for {A B} (f : B -> A -> B) (acc : B) : AVLTree A -> B :=
+      toList >> Polymorphic.Foldable.for f acc;
+    rfor {A B} (f : B → A → B) (acc : B) : AVLTree A -> B :=
+      toList >> Polymorphic.Foldable.rfor f acc
+  };
 
-difference {A} {{Ord A}} (s1 s2 : AVLTree A) : AVLTree A :=
-  toList s1 |> filter \ {x := not (member? x s2)} |> fromList;
+{-# specialize: true, inline: true #-}
+instance
+foldableVLTreeI {A} : Foldable (AVLTree A) A := fromPolymorphicFoldable;
