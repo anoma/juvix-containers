@@ -77,6 +77,17 @@ tests : List Test :=
   ; testCase
     "s1-s2-difference"
     (assertEqual "difference s1-tree s2-tree" (difference s1-tree s2-tree) (fromList [9]))
+  ; testCase
+    "s1-s2-union"
+    (assertEqual "union s1-tree s2-tree" (union s1-tree s2-tree) (fromList [0; 1; 2; 3; 4; 8; 9]))
+  ; testCase "for ascending iteration"
+    <| assertEqual "for iterates in ascending order" [1; 2; 3; 4]
+    <| for (acc := []) (k in fromList [3; 2; 4; 1])
+         snoc acc k
+  ; testCase "rfor ascending iteration"
+    <| assertEqual "rfor iterates in descending order" [4; 3; 2; 1]
+    <| rfor (acc := []) (k in fromList [3; 2; 4; 1])
+         snoc acc k
   ]
     ++ concatMap mkTests [s1; s2; s3; s4; s2-delete];
 
