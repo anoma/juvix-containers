@@ -8,10 +8,6 @@ printNatListLn : List Nat → IO
   | nil := printStringLn "nil"
   | (x :: xs) := printNat x >>> printString " :: " >>> printNatListLn xs;
 
-mapMaybe {A B} (f : A -> B) : Maybe A -> Maybe B
-  | nothing := nothing
-  | (just a) := just (f a);
-
 isJust {A} : Maybe A -> Bool
   | nothing := false
   | (just _) := true;
