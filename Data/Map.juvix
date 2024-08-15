@@ -57,5 +57,8 @@ toList {A B} : Map A B -> List (Pair A B)
 size {A B} : Map A B -> Nat
   | (mkMap s) := Set.size s;
 
+delete {A B} {{Ord A}} (k : A) : Map A B -> Map A B
+  | m@(mkMap s) := Set.deleteWith key k s |> mkMap;
+
 instance
 eqMapI {A B} {{Eq A}} {{Eq B}} : Eq (Map A B) := mkEq (Eq.eq on toList);

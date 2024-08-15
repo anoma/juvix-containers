@@ -117,21 +117,23 @@ insertWith {A} {{o : Ord A}} (f : A -> A -> A) (x : A) : AVLTree A -> AVLTree A 
 --- 𝒪(log 𝓃). Inserts an element into and ;AVLTree;.
 insert {A} {{Ord A}} : A -> AVLTree A -> AVLTree A := insertWith (flip const);
 
---- 𝒪(log 𝓃). Removes an element from an ;AVLTree;.
-delete {A} {{o : Ord A}} (x : A) : AVLTree A -> AVLTree A :=
+--- 𝒪(log 𝓃). Removes an element from an ;AVLTree; based on a projected comparison value.
+---
+--- Assumption Ord A and Ord B are compatible: Given a1 a2, A then (p a1 == p a2) == (a1 == a2)
+deleteWith {A B} {{o : Ord A}} {{po : Ord B}} (p : A -> B) (x : B) : AVLTree A -> AVLTree A :=
   let
-    {-# specialize-by: [o] #-}
+    {-# specialize-by: [o, po, p] #-}
     deleteMin : AVLTree A -> Maybe (Pair A (AVLTree A))
       | empty := nothing
       | (node v _ l r) :=
         case deleteMin l of
           | nothing := just (v, r)
           | just (m, l') := just (m, mknode v l' r);
-    {-# specialize-by: [o] #-}
+    {-# specialize-by: [o, po, p] #-}
     go : AVLTree A -> AVLTree A
       | empty := empty
       | (node y h l r) :=
-        case Ord.cmp x y of
+        case Ord.cmp x (p y) of
           | LT := balance (mknode y (go l) r)
           | GT := balance (mknode y l (go r))
           | EQ :=
@@ -142,6 +144,9 @@ delete {A} {{o : Ord A}} (x : A) : AVLTree A -> AVLTree A :=
                   | nothing := l
                   | just (minRight, r') := balance (mknode minRight l r');
   in go;
+
+--- 𝒪(log 𝓃). Removes an element from an ;AVLTree;.
+delete {A} {{o : Ord A}} : A -> AVLTree A -> AVLTree A := deleteWith id;
 
 --- 𝒪(log 𝓃). Returns the minimum element of the ;AVLTree;.
 lookupMin {A} : AVLTree A -> Maybe A
@@ -159,9 +164,15 @@ lookupMax {A} : AVLTree A -> Maybe A
 
 --- 𝒪(𝒹 log 𝓃). Deletes d elements from an ;AVLTree;.
 {-# specialize: [1] #-}
-deleteMany {A} {{Ord A}} (d : List A) (t : AVLTree A) : AVLTree A :=
+deleteMany {A} {{Ord A}} : List A -> AVLTree A -> AVLTree A := deleteManyWith id;
+
+--- 𝒪(𝒹 log 𝓃). Deletes d elements from an ;AVLTree; based on a projected comparison value.
+---
+--- Assumption Ord A and Ord B are compatible: Given a1 a2, A then (p a1 == p a2) == (a1 == a2)
+{-# specialize: [2] #-}
+deleteManyWith {A B} {{Ord A}} {{Ord B}} (p : A -> B) (d : List B) (t : AVLTree A) : AVLTree A :=
   for (acc := t) (x in d)
-    delete x acc;
+    deleteWith p x acc;
 
 --- 𝒪(𝓃). Checks the ;AVLTree; height invariant. I.e. that
 --- every two children do not differ on height by more than 1.
@@ -213,3 +224,9 @@ eqAVLTreeI {A} {{Eq A}} : Eq (AVLTree A) := mkEq ((==) on toList);
 
 instance
 ordAVLTreeI {A} {{Ord A}} : Ord (AVLTree A) := mkOrd (Ord.cmp on toList);
+
+intersection {A} {{Ord A}} (s1 s2 : AVLTree A) : AVLTree A :=
+  toList s1 |> filter \ {x := member? x s2} |> fromList;
+
+difference {A} {{Ord A}} (s1 s2 : AVLTree A) : AVLTree A :=
+  toList s1 |> filter \ {x := not (member? x s2)} |> fromList;

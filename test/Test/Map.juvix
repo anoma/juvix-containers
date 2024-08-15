@@ -23,6 +23,12 @@ tests : List Test :=
        "Map.lookup available key"
        (assertJust "could not find expected key" (Map.lookup 2 m))
      ; testCase
+       "Map.delete exiting key"
+       (assertNothing (const "expected deleted key to be missing") (Map.delete 2 m |> Map.lookup 2))
+     ; testCase
+       "Map.delete missing key"
+       (assertEqual "expected maps to be equal" m (Map.delete 100 m))
+     ; testCase
        "Map.length computes the number of keys in the map"
        (assertEqual "expected length 2" (Map.size m) 2)
      ; testCase
